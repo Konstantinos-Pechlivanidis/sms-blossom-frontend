@@ -1,11 +1,9 @@
 name = "SMS Consent Banner"
 uid = "ac168625-bba4-cc5a-537a-b29b368f70d462824a6c"
-type = "theme_app_extension"
-target = "head"
-
+type = "theme"
 [build]
 command = ""
 path = "dist"
-
 [build.include]
 paths = ["assets", "blocks", "snippets"]
+# This creates an App Embed block you can toggle in the theme editor.

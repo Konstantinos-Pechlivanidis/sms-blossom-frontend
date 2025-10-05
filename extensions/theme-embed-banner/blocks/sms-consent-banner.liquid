@@ -8,20 +8,7 @@ App Embed block: a simple banner to collect phone + consent and POST to App Prox
 {
   "name": "SMS Consent Banner",
   "target": "body",
-  "settings": [
-    {
-      "type": "text",
-      "id": "title",
-      "label": "Title",
-      "default": "Get SMS updates"
-    },
-    {
-      "type": "text",
-      "id": "description",
-      "label": "Description",
-      "default": "Never miss shipping updates or special offers. Opt-in below."
-    }
-  ]
+  "settings": []
 }
 {% endschema %}
 <div id="sms-consent-banner" data-shop="{{ shop.permanent_domain | escape }}" data-proxy="/apps/sms-blossom">
@@ -33,12 +20,12 @@ App Embed block: a simple banner to collect phone + consent and POST to App Prox
     #sms-consent-banner small { color:#ddd; }
     #sms-consent-banner .sms-close { margin-left: 8px; background:#444; }
   </style>
-      <form>
-        <input id="sms-phone" type="tel" placeholder="+3069XXXXXXXX" aria-label="Mobile phone" />
-        <button type="submit">{{ block.settings.title | default: "Get SMS updates" }}</button>
-        <button type="button" class="sms-close">Close</button>
-      </form>
-      <small>{{ block.settings.description | default: "By subscribing you agree to receive SMS from" }} {{ shop.name }}. Reply STOP to opt out.</small>
+  <form>
+    <input id="sms-phone" type="tel" placeholder="+3069XXXXXXXX" aria-label="Mobile phone" />
+    <button type="submit">Get SMS updates</button>
+    <button type="button" class="sms-close">Close</button>
+  </form>
+  <small>By subscribing you agree to receive SMS from {{ shop.name }}. Reply STOP to opt out.</small>
   <div class="sms-msg" role="status" aria-live="polite" style="margin-top:6px;"></div>
 </div>
 <script src="{{ 'sms-consent-banner.js' | asset_url }}" defer></script>

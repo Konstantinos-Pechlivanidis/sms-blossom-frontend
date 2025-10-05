@@ -24,7 +24,9 @@ export function getAppBridge() {
     if (_app)
         return _app;
     _app = createApp({
-        apiKey: __SHOPIFY_API_KEY__,
+        apiKey: import.meta.env.VITE_SHOPIFY_API_KEY ||
+            window.__SHOPIFY_API_KEY__ ||
+            __SHOPIFY_API_KEY__,
         host: getHostParam(),
         forceRedirect: true,
     });

@@ -1,0 +1,22 @@
+api_version = "2025-10"
+
+[[extensions]]
+
+uid = "9bb53cec-3cc5-fff0-3ba8-adb8f162506c1bd23167"
+
+type = "ui_extension"
+name = "Thank-you Late Opt-in"
+handle = "thank-you-late-opt-in"
+
+[[extensions.targeting]]
+target = "purchase.thank-you.block.render"
+module = "./src/index.ts"
+
+[extensions.capabilities]
+network_access = true
+
+[extensions.settings]
+[[extensions.settings.fields]]
+key = "title"
+type = "single_line_text_field"
+name = "Title"

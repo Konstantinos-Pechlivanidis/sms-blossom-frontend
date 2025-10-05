@@ -1,0 +1,33 @@
+api_version = "2025-10"
+
+[[extensions]]
+
+uid = "b0409f7c-64b4-9555-ae65-a400987dccd0591b3415"
+
+type = "ui_extension"
+name = "Checkout SMS Consent"
+handle = "checkout-sms-consent"
+
+# You can target more than one location. Keep the generic block target
+# (always available), and also target the Contact step (Plus-only).
+[[extensions.targeting]]
+target = "purchase.checkout.block.render"
+module = "./src/index.ts"
+
+[[extensions.targeting]]
+target = "purchase.checkout.contact.render-after"
+module = "./src/index.ts"
+
+[extensions.capabilities]
+network_access = true     # allow fetch() to your backend
+api_access = false        # set true only if you need Storefront API
+
+[extensions.capabilities.collect_buyer_consent]
+sms_marketing = true
+customer_privacy = true
+
+[extensions.settings]
+[[extensions.settings.fields]]
+key = "title"
+type = "single_line_text_field"
+name = "Title"

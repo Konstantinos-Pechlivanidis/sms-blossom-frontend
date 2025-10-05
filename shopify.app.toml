@@ -1,28 +1,30 @@
-# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+# sms-blossom-frontend/shopify.app.toml
 
-name = "sms-blossom"
 client_id = "47aa6b9af3382b1ae6ac67f179409f97"
-application_url = "https://cleanup-charging-therefore-dan.trycloudflare.com"
+name = "sms-blossom"
 embedded = true
 
-[access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_products,write_products,read_orders,write_orders,read_customers,write_customers,read_checkouts,write_checkouts,read_discounts,write_discounts,read_themes,write_themes"
-
-[auth]
-redirect_urls = [
-  "https://cleanup-charging-therefore-dan.trycloudflare.com/auth/callback",
-  "https://cleanup-charging-therefore-dan.trycloudflare.com/auth/shopify/callback",
-  "https://cleanup-charging-therefore-dan.trycloudflare.com/api/auth/callback"
-]
-
-[webhooks]
-api_version = "2024-01"
-
-[pos]
-embedded = false
+# Deployed frontend on Render (replace with your actual domain)
+application_url = "https://sms-blossom-frontend.onrender.com"
 
 [build]
+# Το CLI θα αντικαθιστά τα URLs με το dev tunnel όταν τρέχεις `shopify app dev`
 automatically_update_urls_on_dev = true
-include_config_on_deploy = true
 
+# OAuth παραμένει στο backend (Express)
+[auth]
+redirect_urls = [
+  "https://request-bar-sheep-estimated.trycloudflare.com/auth/callback"
+]
+
+# App Proxy → backend (όπως το έχεις)
+[app_proxy]
+url = "https://request-bar-sheep-estimated.trycloudflare.com/public"
+subpath = "sms-blossom"
+prefix = "apps"
+
+[webhooks]
+api_version = "2025-10"
+
+[access_scopes]
+scopes = "read_customers,write_customers,read_discounts,write_discounts,read_inventory,read_orders"

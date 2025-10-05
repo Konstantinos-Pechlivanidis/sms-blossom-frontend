@@ -41,7 +41,7 @@ Replace `/apps/sms-blossom` with your actual path in:
 
 1. In **Shopify Partners**, set **App Proxy**:
    - Subpath: `sms-blossom` (or your choice)
-   - Proxy URL: `https://cleanup-charging-therefore-dan.trycloudflare.com` (your current backend tunnel)
+   - Proxy URL: `https://allied-yet-involvement-voted.trycloudflare.com` (your current backend tunnel)
 2. From the **frontend repo** root:
    ```bash
    npm install
