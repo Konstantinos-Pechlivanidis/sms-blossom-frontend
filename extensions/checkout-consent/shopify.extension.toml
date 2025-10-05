@@ -1,0 +1,13 @@
+name = "Checkout SMS Consent"
+uid = "b0409f7c-64b4-9555-ae65-a400987dccd0591b3415"
+type = "checkout_ui_extension"
+api_version = "2025-01"
+runtime_context = "checkout"
+metafields = []
+
+[[targets]]
+target = "purchase.checkout.contact.render-after"
+module = "./src/Checkout.tsx"
+
+[capabilities]
+api_access = true

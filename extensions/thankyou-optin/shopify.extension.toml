@@ -1,0 +1,12 @@
+name = "Thank-you Late Opt-in"
+uid = "9bb53cec-3cc5-fff0-3ba8-adb8f162506c1bd23167"
+type = "checkout_ui_extension"
+api_version = "2025-01"
+runtime_context = "post_purchase"
+
+[[targets]]
+target = "purchase.thank-you.block.render"
+module = "./src/ThankYou.tsx"
+
+[capabilities]
+api_access = true

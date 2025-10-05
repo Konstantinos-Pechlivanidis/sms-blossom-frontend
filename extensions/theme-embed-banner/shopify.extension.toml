@@ -1,0 +1,11 @@
+name = "SMS Consent Banner"
+uid = "ac168625-bba4-cc5a-537a-b29b368f70d462824a6c"
+type = "theme_app_extension"
+target = "head"
+
+[build]
+command = ""
+path = "dist"
+
+[build.include]
+paths = ["assets", "blocks", "snippets"]

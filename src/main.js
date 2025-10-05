@@ -1,0 +1,11 @@
+import { jsx as _jsx } from "react/jsx-runtime";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { AppProvider as PolarisProvider } from '@shopify/polaris';
+import '@shopify/polaris/build/esm/styles.css';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/query';
+import App from './ui/App';
+const router = createBrowserRouter([{ path: '/*', element: _jsx(App, {}) }]);
+ReactDOM.createRoot(document.getElementById('root')).render(_jsx(React.StrictMode, { children: _jsx(PolarisProvider, { i18n: {}, children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(RouterProvider, { router: router }) }) }) }));

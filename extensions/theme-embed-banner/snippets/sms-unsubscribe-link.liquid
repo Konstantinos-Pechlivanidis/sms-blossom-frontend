@@ -1,0 +1,9 @@
+{% comment %}
+Usage:
+  {% render 'sms-unsubscribe-link', phone: customer.phone, text: 'Unsubscribe' %}
+
+Note: If you don't have customer.phone (PCD), pass a known phone or a placeholder.
+The link opens the App Proxy GET /public/unsubscribe.
+{% endcomment %}
+{% assign phone_value = phone | default: '' %}
+<a href="/apps/sms-blossom/public/unsubscribe?shop={{ shop.permanent_domain | url_encode }}&phone={{ phone_value | url_encode }}">{{ text | default: 'Unsubscribe' }}</a>

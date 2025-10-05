@@ -1,0 +1,28 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "sms-blossom"
+client_id = "47aa6b9af3382b1ae6ac67f179409f97"
+application_url = "https://cleanup-charging-therefore-dan.trycloudflare.com"
+embedded = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products,write_products,read_orders,write_orders,read_customers,write_customers,read_checkouts,write_checkouts,read_discounts,write_discounts,read_themes,write_themes"
+
+[auth]
+redirect_urls = [
+  "https://cleanup-charging-therefore-dan.trycloudflare.com/auth/callback",
+  "https://cleanup-charging-therefore-dan.trycloudflare.com/auth/shopify/callback",
+  "https://cleanup-charging-therefore-dan.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-01"
+
+[pos]
+embedded = false
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
+
