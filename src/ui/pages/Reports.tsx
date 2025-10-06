@@ -9,10 +9,10 @@ import {
   IndexTable,
   Badge,
 } from '@shopify/polaris';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
-import { inferShopDomainFromHostParam } from '../../lib/shop';
+import { useShop } from '../../lib/shopContext';
 import { fmtMoney, fmtPct } from '../../lib/format';
 import {
   ResponsiveContainer,
@@ -59,41 +59,44 @@ type AutomationsRes = {
 };
 
 export default function Reports() {
-  const shop = useMemo(() => inferShopDomainFromHostParam(), []);
+  const { shop, isReady } = useShop();
   const [windowSel, setWindowSel] = useState<'7d' | '30d' | '90d'>('30d');
 
   const { data: overview, isLoading: loadO } = useQuery({
     queryKey: ['r_overview', shop, windowSel],
     queryFn: () =>
-      apiFetch<Overview>(`/reports/overview?shop=${encodeURIComponent(shop)}&window=${windowSel}`),
-    enabled: !!shop,
+      apiFetch<Overview>(`/reports/overview?shop=${encodeURIComponent(shop)}&window=${windowSel}`, { shop }),
+    enabled: isReady && !!shop,
   });
 
   const { data: timeseries, isLoading: loadT } = useQuery({
     queryKey: ['r_ts', shop, windowSel],
     queryFn: () =>
       apiFetch<TimeseriesRes>(
-        `/reports/messaging/timeseries?shop=${encodeURIComponent(shop)}&window=${windowSel}`
+        `/reports/messaging/timeseries?shop=${encodeURIComponent(shop)}&window=${windowSel}`,
+        { shop }
       ),
-    enabled: !!shop,
+    enabled: isReady && !!shop,
   });
 
   const { data: campaigns, isLoading: loadC } = useQuery({
     queryKey: ['r_campaigns', shop, windowSel],
     queryFn: () =>
       apiFetch<CampaignsRes>(
-        `/reports/campaigns?shop=${encodeURIComponent(shop)}&window=${windowSel}`
+        `/reports/campaigns?shop=${encodeURIComponent(shop)}&window=${windowSel}`,
+        { shop }
       ),
-    enabled: !!shop,
+    enabled: isReady && !!shop,
   });
 
   const { data: automations, isLoading: loadA } = useQuery({
     queryKey: ['r_autom', shop, windowSel],
     queryFn: () =>
       apiFetch<AutomationsRes>(
-        `/reports/automations?shop=${encodeURIComponent(shop)}&window=${windowSel}`
+        `/reports/automations?shop=${encodeURIComponent(shop)}&window=${windowSel}`,
+        { shop }
       ),
-    enabled: !!shop,
+    enabled: isReady && !!shop,
   });
 
   return (

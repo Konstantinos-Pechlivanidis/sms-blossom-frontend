@@ -6,8 +6,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
 const EXT_DIRS = [
-  'extensions/checkout-consent/dist',
-  'extensions/thankyou-optin/dist'
+  'extensions/checkout-sms-consent/dist',
+  'extensions/thank-you-late-opt-in/dist'
 ];
 
 let fail = false;

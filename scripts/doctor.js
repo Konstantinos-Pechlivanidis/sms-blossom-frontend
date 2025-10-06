@@ -10,8 +10,8 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const ENV_PATH = path.join(ROOT, '.env');
 const OPENAPI_PATH = path.join(ROOT, 'openapi', 'openapi.yaml');
-const EXT_CHECKOUT = path.join(ROOT, 'extensions', 'checkout-consent', 'src', 'Checkout.tsx');
-const EXT_THANKYOU = path.join(ROOT, 'extensions', 'thankyou-optin', 'src', 'ThankYou.tsx');
+const EXT_CHECKOUT = path.join(ROOT, 'extensions', 'checkout-sms-consent', 'src', 'index.ts');
+const EXT_THANKYOU = path.join(ROOT, 'extensions', 'thank-you-late-opt-in', 'src', 'index.ts');
 const EXT_BANNER = path.join(ROOT, 'extensions', 'theme-embed-banner', 'blocks', 'sms-consent-banner.liquid');
 
 const REQUIRED_PROXY = '/apps/sms-blossom';

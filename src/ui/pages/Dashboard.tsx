@@ -1,7 +1,7 @@
 import { Card, Page, Text, InlineStack, BlockStack } from '@shopify/polaris';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
-import { useMemo } from 'react';
+import { useShop } from '../../lib/shopContext';
 import { KpiSkeletonRow, ChartSkeleton } from '../components/Skeletons';
 
 type Overview = {
@@ -22,30 +22,23 @@ type Timeseries = {
 };
 
 export default function Dashboard() {
-  const shop = useMemo(() => {
-    const h = new URL(window.location.href).searchParams.get('host') || '';
-    try {
-      const s = atob(h);
-      const u = new URL(`https://${s}`);
-      const sub = u.hostname.split('.')[0];
-      return `${sub}.myshopify.com`;
-    } catch {
-      return '';
-    }
-  }, []);
+  const { shop, isReady } = useShop();
 
   const { data: overview, isLoading: loadingOverview } = useQuery({
     queryKey: ['overview', shop],
     queryFn: () =>
-      apiFetch<Overview>(`/reports/overview?shop=${encodeURIComponent(shop)}&window=30d`),
+      apiFetch<Overview>(`/reports/overview?shop=${encodeURIComponent(shop)}&window=30d`, { shop }),
+    enabled: isReady && !!shop,
   });
 
   const { data: ts, isLoading: loadingTs } = useQuery({
     queryKey: ['timeseries', shop],
     queryFn: () =>
       apiFetch<Timeseries>(
-        `/reports/messaging/timeseries?shop=${encodeURIComponent(shop)}&window=30d`
+        `/reports/messaging/timeseries?shop=${encodeURIComponent(shop)}&window=30d`,
+        { shop }
       ),
+    enabled: isReady && !!shop,
   });
 
   return (
