@@ -27,12 +27,12 @@ Deploy the Vite app as a static site on Render:
 3) Update **Shopify Partners → App setup → App URL** to that domain.
 4) Update `shopify.app.toml` → `application_url` to the same domain and commit.
 5) Keep **Allowed redirection URL(s)** pointing to your backend OAuth callback (unchanged):
-   - e.g. `https://request-bar-sheep-estimated.trycloudflare.com/auth/callback`
+   - e.g. `https://sms-blossom-api.onrender.com/auth/callback`
 
 App Proxy remains unchanged:
 - prefix = "apps"
 - subpath = "sms-blossom" 
-- url = "https://request-bar-sheep-estimated.trycloudflare.com/public"
+- url = "https://sms-blossom-api.onrender.com/public"
 
 ## Features
 

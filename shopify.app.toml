@@ -14,12 +14,12 @@ automatically_update_urls_on_dev = true
 # OAuth παραμένει στο backend (Express)
 [auth]
 redirect_urls = [
-  "https://request-bar-sheep-estimated.trycloudflare.com/auth/callback"
+  "https://sms-blossom-api.onrender.com/auth/callback"
 ]
 
 # App Proxy → backend (όπως το έχεις)
 [app_proxy]
-url = "https://request-bar-sheep-estimated.trycloudflare.com/public"
+url = "https://sms-blossom-api.onrender.com/public"
 subpath = "sms-blossom"
 prefix = "apps"
 
