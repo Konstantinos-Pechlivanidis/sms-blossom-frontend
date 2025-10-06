@@ -24,6 +24,14 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   headers.set('Authorization', `Bearer ${token}`);
   headers.set('Content-Type', 'application/json');
   const finalPath = appendShop(path);
+  if (import.meta.env.DEV) {
+    try {
+      const q = finalPath.split('?')[1] || '';
+      const s = new URLSearchParams(q).get('shop');
+      // eslint-disable-next-line no-console
+      console.debug('[apiFetch] shop=', s, ' path=', finalPath);
+    } catch {}
+  }
   const res = await fetch(`${API_BASE}${finalPath}`, { ...init, headers, credentials: 'include' });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
