@@ -1,6 +1,6 @@
-import { getBearerToken } from './shopify';
-import { inferShopDomainFromHostParam } from './shop';
 import { emitApiError } from './events';
+import { inferShopDomainFromHostParam } from './shop';
+import { getBearerToken } from './shopify';
 
 export const API_BASE: string = String((import.meta as any).env?.VITE_BACKEND_URL || '').replace(/\/+$/, '');
 
@@ -28,9 +28,8 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
     try {
       const q = finalPath.split('?')[1] || '';
       const s = new URLSearchParams(q).get('shop');
-      // eslint-disable-next-line no-console
-      console.debug('[apiFetch] shop=', s, ' path=', finalPath);
-    } catch {}
+      console.debug('[apiFetch] shop=', s, 'path=', finalPath);
+    } catch { /* ignore */ }
   }
   const res = await fetch(`${API_BASE}${finalPath}`, { ...init, headers, credentials: 'include' });
   if (!res.ok) {

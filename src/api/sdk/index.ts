@@ -23,6 +23,22 @@ export type { ReportOverviewResponse } from './models/ReportOverviewResponse';
 export type { SettingsGetResponse } from './models/SettingsGetResponse';
 export type { SettingsPutRequest } from './models/SettingsPutRequest';
 
+export { $ApplyUrlResponse } from './schemas/$ApplyUrlResponse';
+export { $AutomationConfig } from './schemas/$AutomationConfig';
+export { $AutomationRules } from './schemas/$AutomationRules';
+export { $AutomationsResponse } from './schemas/$AutomationsResponse';
+export { $AutomationsUpdateRequest } from './schemas/$AutomationsUpdateRequest';
+export { $ConsentRequest } from './schemas/$ConsentRequest';
+export { $ConsentResponse } from './schemas/$ConsentResponse';
+export { $DiscountCreateRequest } from './schemas/$DiscountCreateRequest';
+export { $DiscountCreateResponse } from './schemas/$DiscountCreateResponse';
+export { $ErrorResponse } from './schemas/$ErrorResponse';
+export { $HealthResponse } from './schemas/$HealthResponse';
+export { $ReportAttributionResponse } from './schemas/$ReportAttributionResponse';
+export { $ReportOverviewResponse } from './schemas/$ReportOverviewResponse';
+export { $SettingsGetResponse } from './schemas/$SettingsGetResponse';
+export { $SettingsPutRequest } from './schemas/$SettingsPutRequest';
+
 export { AutomationsService } from './services/AutomationsService';
 export { CampaignsService } from './services/CampaignsService';
 export { DiscountsService } from './services/DiscountsService';

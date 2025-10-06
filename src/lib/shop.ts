@@ -38,7 +38,7 @@ export function inferShopDomainFromHostParam(): string {
   const shopQ = qs.get('shop');
   if (isMyshopifyDomain(shopQ)) {
     const s = shopQ!.toLowerCase();
-    try { localStorage.setItem('lastShopDomain', s); } catch {}
+    try { localStorage.setItem('lastShopDomain', s); } catch { /* ignore */ }
     return s;
   }
 
@@ -47,7 +47,7 @@ export function inferShopDomainFromHostParam(): string {
   const fromHost = host ? decodeHost(host) : null;
   if (isMyshopifyDomain(fromHost)) {
     const s = fromHost!.toLowerCase();
-    try { localStorage.setItem('lastShopDomain', s); } catch {}
+    try { localStorage.setItem('lastShopDomain', s); } catch { /* ignore */ }
     return s;
   }
 
@@ -57,10 +57,10 @@ export function inferShopDomainFromHostParam(): string {
     const abShop = (window as any)?.appBridge?.getState?.()?.context?.shopify?.shop?.myshopifyDomain;
     if (isMyshopifyDomain(abShop)) {
       const s = abShop.toLowerCase();
-      try { localStorage.setItem('lastShopDomain', s); } catch {}
+      try { localStorage.setItem('lastShopDomain', s); } catch { /* ignore */ }
       return s;
     }
-  } catch {}
+  } catch { /* ignore */ }
 
   // 4) window.top fallback (if accessible)
   try {
@@ -68,17 +68,46 @@ export function inferShopDomainFromHostParam(): string {
     const topShop = topQs.get('shop');
     if (isMyshopifyDomain(topShop)) {
       const s = topShop!.toLowerCase();
-      try { localStorage.setItem('lastShopDomain', s); } catch {}
+      try { localStorage.setItem('lastShopDomain', s); } catch { /* ignore */ }
       return s;
     }
-  } catch {}
+  } catch { /* ignore */ }
 
   // 5) cached
   try {
     const cached = localStorage.getItem('lastShopDomain');
     if (isMyshopifyDomain(cached)) return cached!.toLowerCase();
-  } catch {}
+  } catch { /* ignore */ }
 
   // last resort: empty (apiFetch will skip appending &shop=)
   return '';
+}
+
+// ---- UTM helper (used by Discounts/Campaigns screens) ----
+export type UtmParams = Partial<Record<'utm_source'|'utm_medium'|'utm_campaign'|'utm_content'|'utm_term', string>>;
+
+/**
+ * Append UTM params to a given URL or path, preserving existing query.
+ * - Accepts relative paths (/checkout) or absolute URLs.
+ * - Only sets non-empty UTM keys.
+ */
+export function appendUtm(input: string, utm: UtmParams = {}): string {
+  try {
+    // Make a URL object even for relative paths
+    const base = typeof window !== 'undefined' ? window.location.origin : 'https://example.com';
+    const u = new URL(input, base);
+    for (const [k, v] of Object.entries(utm)) {
+      if (!v) continue;
+      // ensure keys are utm_* (defensive)
+      const key = k.startsWith('utm_') ? k : (`utm_${k}` as keyof URLSearchParams);
+      u.searchParams.set(String(key), v);
+    }
+    // If caller passed a relative path, return relative
+    if (!/^(https?:)?\/\//i.test(input)) {
+      return u.pathname + (u.search ? `?${u.searchParams.toString()}` : '') + (u.hash || '');
+    }
+    return u.toString();
+  } catch {
+    return input;
+  }
 }
