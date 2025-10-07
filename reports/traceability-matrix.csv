@@ -1,21 +1,33 @@
 Feature,UI Route/File(s),Backend Endpoint(s),SDK Method(s),Implemented (✅/❌),Notes
-Dashboard,/ (src/ui/pages/Dashboard.tsx),GET /health, GET /reports/overview, GET /reports/messaging,getHealth(), getOverview(), getMessaging(),✅,Complete with health monitoring
-Automations,/automations (src/features/automations/),GET /automations, PUT /automations,getAutomations(), updateAutomations(),✅,Full implementation with 5 automation types
-Campaigns,/campaigns (src/ui/pages/Campaigns.tsx),GET /campaigns, POST /campaigns, GET /campaigns/{id}, PUT /campaigns/{id}, DELETE /campaigns/{id}, POST /campaigns/{id}/estimate, POST /campaigns/{id}/test-send, POST /campaigns/{id}/send,listCampaigns(), createCampaign(), getCampaign(), updateCampaign(), deleteCampaign(), estimateCampaign(), testSendCampaign(), sendCampaign(),✅,Complete CRUD with estimation and testing
-Campaign Detail,/campaigns/:id (src/ui/pages/CampaignDetail.tsx),GET /campaigns/{id}, PUT /campaigns/{id}, DELETE /campaigns/{id}, POST /campaigns/{id}/estimate, POST /campaigns/{id}/test-send, POST /campaigns/{id}/send,getCampaign(), updateCampaign(), deleteCampaign(), estimateCampaign(), testSendCampaign(), sendCampaign(),✅,Detailed campaign management
-Discounts,/discounts (src/ui/pages/Discounts.tsx),GET /discounts, POST /discounts, GET /discounts/{id}, PUT /discounts/{id}, DELETE /discounts/{id}, POST /discounts/conflicts, GET /discounts/{id}/apply-url,listDiscounts(), createDiscount(), getDiscount(), updateDiscount(), deleteDiscount(), checkConflicts(), getApplyUrl(),✅,Complete discount management with conflict checking
-Segments,/segments (src/ui/pages/Segments.tsx),GET /segments, POST /segments, GET /segments/{id}, PUT /segments/{id}, DELETE /segments/{id},listSegments(), createSegment(), getSegment(), updateSegment(), deleteSegment(),✅,Customer segmentation management
-Reports,/reports (src/ui/pages/Reports.tsx),GET /reports/overview, GET /reports/messaging, GET /reports/campaigns, GET /reports/automations, GET /reports/attribution, POST /reports/export,getOverview(), getMessaging(), getCampaignsReport(), getAutomationsReport(), getAttributionReport(), exportReport(),✅,Comprehensive reporting with export
-Settings,/settings (src/ui/pages/Settings.tsx),GET /settings, PUT /settings,getSettings(), updateSettings(),✅,Shop configuration and feature flags
-Contacts,/contacts (MISSING),GET /contacts, POST /contacts, GET /contacts/{id}, PUT /contacts/{id}, DELETE /contacts/{id}, POST /contacts/bulk,listContacts(), createContact(), getContact(), updateContact(), deleteContact(), bulkContacts(),❌,Missing contacts management UI
-Templates,/templates (MISSING),GET /templates, POST /templates, GET /templates/{id}, PUT /templates/{id}, DELETE /templates/{id}, POST /templates/preview, POST /templates/validate, GET /templates/variables, GET /templates/triggers,listTemplates(), createTemplate(), getTemplate(), updateTemplate(), deleteTemplate(), previewTemplate(), validateTemplate(), getTemplateVariables(), getTemplateTriggers(),⚠️,Template functionality exists but no dedicated UI
-Health Check,/ (src/features/dashboard/components/HealthStatusBadge.tsx),GET /health,getHealth(),✅,Integrated into dashboard
-Queue Health,/ (src/features/dashboard/components/),GET /queue/health, GET /queue/metrics,getQueueHealth(), getQueueMetrics(),⚠️,Backend endpoints exist but not fully integrated
-Metrics,/ (src/features/dashboard/components/MetricsCard.tsx),GET /metrics, GET /metrics/json,getMetrics(), getMetricsJson(),⚠️,Basic metrics display, advanced analytics missing
-GDPR Compliance,/unsubscribe (MISSING),POST /proxy/unsubscribe, POST /proxy/consent,handleUnsubscribe(), collectConsent(),⚠️,Backend endpoints exist but no dedicated UI
-Webhooks,/webhooks (MISSING),POST /webhooks/shopify/orders/create, POST /webhooks/shopify/orders/paid, POST /webhooks/mitto/dlr, POST /webhooks/mitto/inbound,handleWebhook(),⚠️,Backend webhook handlers exist but no management UI
-Analytics,/analytics (MISSING),GET /analytics/conversion, GET /analytics/funnel, GET /analytics/attribution,getConversionAnalytics(), getFunnelAnalytics(), getAttributionAnalytics(),❌,Advanced analytics missing
-A/B Testing,/ab-testing (MISSING),POST /campaigns/{id}/variants, GET /campaigns/{id}/variants, POST /campaigns/{id}/variants/{variantId}/test,createVariant(), getVariants(), testVariant(),❌,A/B testing framework missing
-Bulk Operations,/bulk (MISSING),POST /campaigns/bulk, POST /discounts/bulk, POST /contacts/bulk,bulkCampaigns(), bulkDiscounts(), bulkContacts(),❌,Bulk operations missing
-Template Library,/templates (MISSING),GET /templates/library, POST /templates/library, GET /templates/library/{id},getTemplateLibrary(), createTemplateLibrary(), getTemplateLibraryItem(),❌,Template library missing
-Performance Monitoring,/performance (MISSING),GET /performance/metrics, GET /performance/errors,getPerformanceMetrics(), getPerformanceErrors(),❌,Performance monitoring missing
+Dashboard,/ (Dashboard.tsx),GET /reports/overview,getOverviewReport,✅,Complete with metrics and health status
+Automations,/automations (AutomationsPage.tsx),GET /automations,getAutomations,✅,Cards with toggles, template editor, rules modal
+Campaigns,/campaigns (Campaigns.tsx),GET /campaigns,getCampaigns,✅,List view with create/edit/delete
+Campaign Detail,/campaigns/:id (CampaignDetail.tsx),GET /campaigns/:id,getCampaign,✅,Detail view with estimate/test/send
+Discounts,/discounts (Discounts.tsx),GET /discounts,getDiscounts,✅,List view with conflict checking
+Contacts,/contacts (Contacts.tsx),GET /contacts,getContacts,✅,List view with create/edit/delete
+Segments,/segments (Segments.tsx),GET /segments,getSegments,✅,List view with create/edit/delete
+Reports,/reports (Reports.tsx),GET /reports/overview,getOverviewReport,✅,Overview and messaging reports
+Settings,/settings (Settings.tsx),GET /settings,getSettings,✅,Configuration with quiet hours and caps
+Health Check,Multiple,GET /health,getHealth,✅,System health monitoring
+Template Preview,AutomationsPage,POST /templates/preview,previewTemplate,✅,Liquid template preview
+Template Validation,AutomationsPage,POST /templates/validate,validateTemplate,✅,Template syntax validation
+Template Variables,AutomationsPage,GET /templates/variables,getTemplateVariables,✅,Available variables per trigger
+Campaign Estimate,CampaignDetail,POST /campaigns/:id/estimate,estimateCampaign,✅,Cost and recipient estimation
+Campaign Test Send,CampaignDetail,POST /campaigns/:id/test-send,testSendCampaign,✅,Test message sending
+Campaign Send,CampaignDetail,POST /campaigns/:id/send,sendCampaign,✅,Bulk campaign sending
+Discount Conflicts,Discounts,POST /discounts/conflicts,checkDiscountConflicts,✅,Conflict detection
+Discount Apply URL,Discounts,GET /discounts/:id/apply-url,getDiscountApplyUrl,✅,Shopify integration URL
+Automation Toggle,AutomationsPage,PUT /automations,updateAutomations,✅,Enable/disable automations
+Automation Rules,AutomationsPage,PUT /automations,updateAutomations,✅,Quiet hours, frequency cap, dedupe
+Contact Creation,Contacts,POST /contacts,createContact,✅,Manual contact addition
+Contact Update,Contacts,PUT /contacts/:id,updateContact,✅,Edit contact details
+Contact Deletion,Contacts,DELETE /contacts/:id,deleteContact,✅,Remove contacts
+Bulk Contacts,Contacts,POST /contacts/bulk,bulkContacts,✅,Bulk operations
+Reports Export,Reports,GET /reports/export,exportReport,✅,CSV/JSON export
+Automations Report,Reports,GET /reports/automations,getAutomationsReport,✅,Automation performance metrics
+Campaigns Report,Reports,GET /reports/campaigns,getCampaignsReport,✅,Campaign performance metrics
+Attribution Report,Reports,GET /reports/attribution,getAttributionReport,✅,Revenue attribution
+Queue Health,Dashboard,GET /queue/health,getHealth,✅,Message queue status
+Prometheus Metrics,Dashboard,GET /metrics,getHealth,✅,System metrics
+JSON Metrics,Dashboard,GET /metrics/json,getHealth,✅,Structured metrics
+Who Am I,Debug,GET /__debug/whoami,getWhoAmI,✅,Debug endpoint

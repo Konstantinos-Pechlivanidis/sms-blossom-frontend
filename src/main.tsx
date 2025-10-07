@@ -6,6 +6,17 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/query';
 import App from './ui/App';
+import { validateEnvironment, getEnvironmentInfo } from './config/env';
+
+// Validate environment configuration
+const envValidation = validateEnvironment();
+if (!envValidation.valid) {
+  console.error('Environment validation failed:', envValidation.errors);
+  // In development, show detailed error info
+  if (import.meta.env.DEV) {
+    console.error('Environment info:', getEnvironmentInfo());
+  }
+}
 
 const router = createBrowserRouter([{ path: '/*', element: <App /> }]);
 

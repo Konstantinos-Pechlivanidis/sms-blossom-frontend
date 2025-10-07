@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
-import { beforeAll, afterEach, afterAll } from 'vitest';
+import { beforeAll, afterEach, afterAll, vi } from 'vitest';
 import { server } from './msw/server';
+import React from 'react';
 
 // Mock Shopify App Bridge
 const mockAppBridge = {
@@ -18,12 +19,12 @@ vi.mock('@shopify/polaris', async () => {
   return {
     ...actual,
     // Mock complex components that might not work well in jsdom
-    IndexTable: ({ children, ...props }: any) => (
-      <div data-testid="index-table" {...props}>{children}</div>
-    ),
-    DataTable: ({ children, ...props }: any) => (
-      <div data-testid="data-table" {...props}>{children}</div>
-    ),
+    IndexTable: ({ children, ...props }: any) => {
+      return React.createElement('div', { 'data-testid': 'index-table', ...props }, children);
+    },
+    DataTable: ({ children, ...props }: any) => {
+      return React.createElement('div', { 'data-testid': 'data-table', ...props }, children);
+    },
   };
 });
 
