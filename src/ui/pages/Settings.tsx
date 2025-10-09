@@ -1,8 +1,11 @@
-import { Page, Card, Text, BlockStack, Button, InlineStack, Checkbox } from '@shopify/polaris';
+import { Page, Card, Text, BlockStack, Button, InlineStack, Checkbox, Banner, Spinner } from '@shopify/polaris';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
 import { useEffect, useMemo, useState } from 'react';
 import { inferShopDomainFromHostParam } from '../../lib/shop';
+import { SettingsForm } from '../../features/settings/components/SettingsForm';
+import { useSettings, useUpdateSettings } from '../../features/settings/hooks';
+import { defaultSettings, SettingsFormData } from '../../features/settings/schemas/settingsSchema';
 
 type Health = { status: 'ok' | 'error'; db?: boolean; redis?: boolean; version?: string };
 
@@ -14,6 +17,12 @@ export default function Settings() {
   const shop = useMemo(() => inferShopDomainFromHostParam(), []);
   const [bannerEnabled, setBannerEnabled] = useState<boolean>(false);
   const [unsubscribeExample, setUnsubExample] = useState<string>('');
+  
+  // Settings hooks
+  const { data: settings, isLoading: settingsLoading, error: settingsError } = useSettings();
+  const updateSettings = useUpdateSettings();
+  const [saveError, setSaveError] = useState<string>('');
+  const [saveSuccess, setSaveSuccess] = useState<string>('');
 
   useEffect(() => {
     // Try backend settings; fallback to localStorage
@@ -48,9 +57,61 @@ export default function Settings() {
     }
   }
 
+  const handleSaveSettings = async (data: SettingsFormData) => {
+    setSaveError('');
+    setSaveSuccess('');
+    
+    try {
+      await updateSettings.mutateAsync(data);
+      setSaveSuccess('Settings saved successfully!');
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Failed to save settings');
+    }
+  };
+
+  const getInitialSettings = (): SettingsFormData => {
+    if (settings?.settings) {
+      return {
+        timezone: settings.settings.timezone || defaultSettings.timezone,
+        quietHours: settings.settings.quietHours || defaultSettings.quietHours,
+        cap: settings.settings.cap || defaultSettings.cap,
+        abandoned: {
+          delayMinutes: settings.settings.abandoned?.delayMinutes || defaultSettings.abandoned.delayMinutes
+        },
+        senderId: (settings.settings as any).senderId || defaultSettings.senderId,
+        locale: (settings.settings as any).locale || defaultSettings.locale,
+        unsubscribeText: (settings.settings as any).unsubscribeText || defaultSettings.unsubscribeText,
+        featureFlags: (settings.settings as any).featureFlags || defaultSettings.featureFlags,
+      };
+    }
+    return defaultSettings;
+  };
+
   return (
     <Page title="Settings">
       <BlockStack gap="400">
+        {settingsLoading ? (
+          <Card>
+            <InlineStack align="center" gap="200">
+              <Spinner size="small" />
+              <Text as="p">Loading settings...</Text>
+            </InlineStack>
+          </Card>
+        ) : settingsError ? (
+          <Banner tone="critical">
+            <Text as="p">Failed to load settings: {settingsError.message}</Text>
+          </Banner>
+        ) : (
+          <SettingsForm
+            initialData={getInitialSettings()}
+            onSave={handleSaveSettings}
+            isLoading={updateSettings.isPending}
+            error={saveError}
+            success={saveSuccess}
+            data-testid="settings-form"
+          />
+        )}
+
         <Card>
           <div style={{ padding: '16px' }}>
             <BlockStack gap="200">

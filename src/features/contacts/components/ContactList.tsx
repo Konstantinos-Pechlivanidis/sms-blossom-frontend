@@ -17,6 +17,7 @@ import {
 } from '@shopify/polaris';
 import { DeleteIcon, EditIcon, PlusIcon } from '@shopify/polaris-icons';
 import { useContacts, useDeleteContact, useBulkContacts, Contact } from '../hooks';
+import { ConsentBadge, getConsentStatus, getConsentSource, getConsentDate } from './ConsentBadge';
 
 interface ContactListProps {
   onEditContact?: (contact: Contact) => void;
@@ -107,21 +108,41 @@ export function ContactList({ onEditContact, onCreateContact }: ContactListProps
     );
   }
 
+  const formatPhoneE164 = (phone: string) => {
+    if (!phone) return '-';
+    return phone.startsWith('+') ? phone : `+${phone}`;
+  };
+
+  const formatLastOrder = (contact: any) => {
+    if (!contact.lastOrder) return '-';
+    const order = contact.lastOrder;
+    const date = new Date(order.date).toLocaleDateString();
+    const amount = order.amount ? `${order.currency || 'USD'} ${order.amount}` : '';
+    return `${date}${amount ? ` (${amount})` : ''}`;
+  };
+
+  const formatTags = (contact: any) => {
+    if (!contact.tags || contact.tags.length === 0) return '-';
+    return contact.tags.join(', ');
+  };
+
   const rows = contacts.map((contact: any) => [
     <Checkbox
       label=""
       checked={selectedContacts.includes(contact.id)}
       onChange={(checked) => handleSelectContact(contact.id, checked)}
     />,
-    contact.phone,
+    formatPhoneE164(contact.phone),
     contact.email || '-',
     `${contact.firstName || ''} ${contact.lastName || ''}`.trim() || '-',
-    <Badge tone={contact.subscribed ? 'success' : 'critical'}>
-      {contact.subscribed ? 'Subscribed' : 'Unsubscribed'}
-    </Badge>,
-    <Badge tone={contact.status === 'active' ? 'success' : 'warning'}>
-      {contact.status}
-    </Badge>,
+    <ConsentBadge
+      consentState={getConsentStatus(contact)}
+      consentSource={getConsentSource(contact)}
+      consentDate={getConsentDate(contact)}
+    />,
+    contact.locale || '-',
+    formatLastOrder(contact),
+    formatTags(contact),
     new Date(contact.createdAt).toLocaleDateString(),
     <ButtonGroup>
       <Button
@@ -171,18 +192,20 @@ export function ContactList({ onEditContact, onCreateContact }: ContactListProps
           </InlineStack>
 
           <DataTable
-            columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text', 'text', 'text']}
+            columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text']}
             headings={[
               <Checkbox
                 label=""
                 checked={selectedContacts.length === contacts.length && contacts.length > 0}
                 onChange={handleSelectAll}
               />,
-              'Phone',
+              'Phone (E164)',
               'Email',
               'Name',
-              'Status',
-              'Activity',
+              'Consent Status',
+              'Locale',
+              'Last Order',
+              'Tags',
               'Created',
               'Actions',
             ]}

@@ -129,3 +129,20 @@ export function useToggleAutomation(triggerKey: keyof AutomationsResponse['autom
     isUpdating: updateAutomations.isPending,
   };
 }
+
+// Hook for getting automation metrics
+export function useAutomationMetrics(triggerKey: string, window: string = '7d') {
+  const { shop } = useShop();
+  
+  return useQuery({
+    queryKey: ['automation-metrics', shop, triggerKey, window] as const,
+    queryFn: async () => {
+      if (!shop) throw new Error('Shop not available');
+      return enhancedApiClient.getAutomationsReport({ shop, window });
+    },
+    enabled: !!shop,
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+}

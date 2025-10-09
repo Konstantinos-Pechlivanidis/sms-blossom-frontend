@@ -56,7 +56,7 @@ export function AutomationCard({
   
   return (
     <Card>
-      <BlockStack gap="400">
+      <BlockStack gap="400" data-testid={`automation-card-${triggerKey}`}>
         {/* Header */}
         <InlineStack align="space-between" blockAlign="center">
           <BlockStack gap="100">
@@ -77,6 +77,7 @@ export function AutomationCard({
               onClick={() => onToggle(!isEnabled)}
               loading={isLoading}
               icon={isEnabled ? DisabledIcon : PlayIcon}
+              data-testid={`toggle-${triggerKey}`}
             >
               {isEnabled ? 'Disable' : 'Enable'}
             </Button>
@@ -137,6 +138,7 @@ export function AutomationCard({
             size="slim"
             onClick={onEditTemplate}
             icon={EditIcon}
+            data-testid={`edit-template-${triggerKey}`}
           >
             Edit Template
           </Button>
@@ -144,6 +146,7 @@ export function AutomationCard({
             variant="secondary"
             size="slim"
             onClick={onEditRules}
+            data-testid={`edit-rules-${triggerKey}`}
           >
             Rules
           </Button>
@@ -153,6 +156,7 @@ export function AutomationCard({
               size="slim"
               onClick={onPreview}
               icon={ViewIcon}
+              data-testid={`preview-${triggerKey}`}
             >
               Preview
             </Button>
@@ -163,6 +167,7 @@ export function AutomationCard({
               size="slim"
               onClick={onTest}
               icon={PlayIcon}
+              data-testid={`test-${triggerKey}`}
             >
               Test
             </Button>

@@ -1,0 +1,11 @@
+Route,Expected Component,File Path,Export Found,In Router,Notes
+/,Dashboard,src/ui/pages/Dashboard.tsx,✅,✅,Working - Fixed router config
+/contacts,Contacts,src/ui/pages/Contacts.tsx,✅,✅,Working - Fixed router config
+/discounts,Discounts,src/ui/pages/Discounts.tsx,✅,✅,Working - Fixed router config
+/segments,Segments,src/ui/pages/Segments.tsx,✅,✅,Working - Fixed router config
+/campaigns,Campaigns,src/ui/pages/Campaigns.tsx,✅,✅,Working - Fixed router config
+/campaigns/:id,CampaignDetail,src/ui/pages/CampaignDetail.tsx,✅,✅,Working - Fixed router config
+/automations,AutomationsPage,src/features/automations/AutomationsPage.tsx,✅,✅,Working - Fixed router config
+/reports,Reports,src/ui/pages/Reports.tsx,✅,✅,Working - Fixed router config
+/settings,Settings,src/ui/pages/Settings.tsx,✅,✅,Working - Fixed router config
+/*,NotFoundPage,src/features/core/NotFoundPage.tsx,✅,✅,Created - Professional 404 page

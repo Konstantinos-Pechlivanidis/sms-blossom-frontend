@@ -263,7 +263,7 @@ export default function CampaignDetail() {
               </Text>
               <InlineStack gap="400">
                 <Button onClick={doSnapshot}>Snapshot audience</Button>
-                <Button onClick={doEstimate}>Estimate cost</Button>
+                <Button onClick={doEstimate} data-testid="estimate-button">Estimate cost</Button>
               </InlineStack>
               {snapshot && (
                 <CalloutCard
@@ -312,8 +312,8 @@ export default function CampaignDetail() {
                   onChange={setTestTo}
                   autoComplete="off"
                 />
-                <Button onClick={doTestSend}>Send test</Button>
-                <Button variant="primary" tone="success" onClick={doSendNow}>
+                <Button onClick={doTestSend} data-testid="test-send-button">Send test</Button>
+                <Button variant="primary" tone="success" onClick={doSendNow} data-testid="send-campaign-button">
                   Send now
                 </Button>
               </InlineStack>

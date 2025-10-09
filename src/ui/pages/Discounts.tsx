@@ -11,6 +11,9 @@ import {
   Divider,
   Banner,
   CalloutCard,
+  Tabs,
+  Spinner,
+  EmptyState,
 } from '@shopify/polaris';
 import { useMemo, useState } from 'react';
 import { apiFetch } from '../../lib/api';
@@ -20,6 +23,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import CopyButton from '../components/CopyButton';
 import UtmBuilder, { UtmState } from '../components/UtmBuilder';
 import { appendUtm, inferShopDomainFromHostParam } from '../../lib/shop';
+import { DiscountTable } from '../../features/discounts/components/DiscountTable';
+import { ConflictBanner } from '../../features/discounts/components/ConflictBanner';
+import { useDiscountConflicts } from '../../features/discounts/hooks';
 
 const schema = z
   .object({
@@ -59,6 +65,8 @@ export default function Discounts() {
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [response, setResponse] = useState<any>(null);
   const [conflicts, setConflicts] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState(0);
+  const [editingDiscount, setEditingDiscount] = useState<any>(null);
 
   const {
     register,
@@ -117,21 +125,28 @@ export default function Discounts() {
     setConflicts(res.automaticDiscounts || []);
   }
 
-  return (
-    <Page title="Discounts">
-      <BlockStack gap="400">
-        <Banner tone="info">
-          Create code discounts, preview apply URLs, add UTM parameters, and scan for conflicts with
-          active automatic discounts.
-        </Banner>
+  // Get conflicts for current form data
+  const formData = watch();
+  const { conflicts: realTimeConflicts, checkForConflicts } = useDiscountConflicts(formData);
 
-        <Card>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div style={{ padding: '16px' }}>
-              <BlockStack gap="300">
-                <Text as="h2" variant="headingMd">
-                  Discount details
-                </Text>
+  const tabs = [
+    {
+      id: 'create',
+      content: 'Create Discount',
+      panel: (
+        <BlockStack gap="400">
+          <Banner tone="info">
+            Create code discounts, preview apply URLs, add UTM parameters, and scan for conflicts with
+            active automatic discounts.
+          </Banner>
+
+          <Card>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div style={{ padding: '16px' }}>
+                <BlockStack gap="300">
+                  <Text as="h2" variant="headingMd">
+                    Discount details
+                  </Text>
                 <InlineStack gap="400">
                   <TextField
                     label="Code"
@@ -230,26 +245,26 @@ export default function Discounts() {
 
                 <UtmBuilder value={utm} onChange={setUtm} />
 
-                <InlineStack gap="400">
-                  <Button submit variant="primary" loading={isSubmitting}>
-                    Create discount
-                  </Button>
-                  <Button onClick={runConflictScan}>Scan automatic conflicts</Button>
-                  <Button
-                    onClick={() => {
-                      reset();
-                      setPreviewUrl('');
-                      setResponse(null);
-                    }}
-                    tone="critical"
-                  >
-                    Reset form
-                  </Button>
-                </InlineStack>
-              </BlockStack>
-            </div>
-          </form>
-        </Card>
+                  <InlineStack gap="400">
+                    <Button submit variant="primary" loading={isSubmitting} data-testid="create-discount-button">
+                      Create discount
+                    </Button>
+                    <Button onClick={runConflictScan}>Scan automatic conflicts</Button>
+                    <Button
+                      onClick={() => {
+                        reset();
+                        setPreviewUrl('');
+                        setResponse(null);
+                      }}
+                      tone="critical"
+                    >
+                      Reset form
+                    </Button>
+                  </InlineStack>
+                </BlockStack>
+              </div>
+            </form>
+          </Card>
 
         {response && (
           <Card>
@@ -302,28 +317,74 @@ export default function Discounts() {
           </Card>
         )}
 
-        {conflicts.length > 0 && (
-          <CalloutCard
-            title="Active automatic discounts (advisory)"
-            illustration="https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg"
-            primaryAction={{ content: 'Refresh', onAction: runConflictScan }}
-          >
-            <BlockStack gap="200">
-              {conflicts.map((c, i) => (
-                <div key={i} style={{ padding: '4px 0' }}>
-                  <Text as="p">
-                    <b>{c.title}</b> — {c.type} — combinesWith:{' '}
-                    {c.combinesWith
-                      ? Object.entries(c.combinesWith)
-                          .map(([k, v]) => `${k}:${v ? '✓' : '✕'}`)
-                          .join(', ')
-                      : 'n/a'}
-                  </Text>
-                </div>
-              ))}
-            </BlockStack>
-          </CalloutCard>
-        )}
+          {/* Real-time Conflict Detection */}
+          {realTimeConflicts && realTimeConflicts.automaticDiscounts && realTimeConflicts.automaticDiscounts.length > 0 && (
+            <ConflictBanner
+              conflicts={realTimeConflicts as any}
+              onResolve={(conflict) => {
+                console.log('Resolving conflict:', conflict);
+              }}
+              onDismiss={() => {
+                // Dismiss conflicts
+              }}
+              onRefresh={checkForConflicts}
+            />
+          )}
+
+          {conflicts.length > 0 && (
+            <CalloutCard
+              title="Active automatic discounts (advisory)"
+              illustration="https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg"
+              primaryAction={{ content: 'Refresh', onAction: runConflictScan }}
+            >
+              <BlockStack gap="200">
+                {conflicts.map((c, i) => (
+                  <div key={i} style={{ padding: '4px 0' }}>
+                    <Text as="p">
+                      <b>{c.title}</b> — {c.type} — combinesWith:{' '}
+                      {c.combinesWith
+                        ? Object.entries(c.combinesWith)
+                            .map(([k, v]) => `${k}:${v ? '✓' : '✕'}`)
+                            .join(', ')
+                        : 'n/a'}
+                    </Text>
+                  </div>
+                ))}
+              </BlockStack>
+            </CalloutCard>
+          )}
+        </BlockStack>
+      ),
+    },
+    {
+      id: 'manage',
+      content: 'Manage Discounts',
+      panel: (
+        <BlockStack gap="400">
+          <DiscountTable
+            onEdit={setEditingDiscount}
+            onDelete={(id) => {
+              console.log('Delete discount:', id);
+            }}
+            onCopyUrl={(id) => {
+              console.log('Copy URL for discount:', id);
+            }}
+          />
+        </BlockStack>
+      ),
+    },
+  ];
+
+  return (
+    <Page title="Discounts">
+      <BlockStack gap="400">
+        <Tabs
+          tabs={tabs}
+          selected={activeTab}
+          onSelect={setActiveTab}
+        >
+          {tabs[activeTab].panel}
+        </Tabs>
       </BlockStack>
     </Page>
   );

@@ -9,12 +9,17 @@ import {
   Select,
   IndexTable,
   Badge,
+  Banner,
+  Spinner,
+  EmptyState,
 } from '@shopify/polaris';
 import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { inferShopDomainFromHostParam } from '../../lib/shop';
+import { CampaignWizard } from '../../features/campaigns/components/CampaignWizard';
+import { CostEstimationPanel } from '../../features/campaigns/components/CostEstimationPanel';
 
 type Campaign = {
   id: string;
@@ -45,6 +50,8 @@ export default function Campaigns() {
   const [templateKey, setTemplateKey] = useState<string>('campaign');
   const [scheduleAt, setScheduleAt] = useState<string>('');
   const [batchSize, setBatchSize] = useState<string>('500');
+  const [showWizard, setShowWizard] = useState(false);
+  const [selectedSegment, setSelectedSegment] = useState<any>(null);
 
   const createMut = useMutation({
     mutationFn: () =>
@@ -90,12 +97,27 @@ export default function Campaigns() {
   return (
     <Page title="Campaigns">
       <BlockStack gap="400">
+        {/* Quick Create Form */}
         <Card>
           <div style={{ padding: '16px' }}>
             <BlockStack gap="300">
-              <Text as="h2" variant="headingMd">
-                Create campaign
+              <InlineStack align="space-between" blockAlign="center">
+                <Text as="h2" variant="headingMd">
+                  Create Campaign
+                </Text>
+                <Button
+                  variant="primary"
+                  onClick={() => setShowWizard(true)}
+                  data-testid="create-campaign-wizard"
+                >
+                  Use Campaign Wizard
+                </Button>
+              </InlineStack>
+              
+              <Text variant="bodyMd" as="p" tone="subdued">
+                Create a campaign quickly or use the wizard for step-by-step guidance.
               </Text>
+
               <InlineStack gap="400">
                 <TextField label="Name" value={name} onChange={setName} autoComplete="off" />
                 <Select
@@ -105,7 +127,11 @@ export default function Campaigns() {
                     ...(segments.data || []).map((s: any) => ({ label: s.name, value: s.id })),
                   ]}
                   value={segmentId}
-                  onChange={setSegmentId}
+                  onChange={(value) => {
+                    setSegmentId(value);
+                    const segment = segments.data?.find((s: any) => s.id === value);
+                    setSelectedSegment(segment);
+                  }}
                 />
                 <TextField
                   label="Template key"
@@ -135,6 +161,7 @@ export default function Campaigns() {
                   variant="primary"
                   onClick={() => createMut.mutate()}
                   loading={createMut.isPending}
+                  data-testid="create-campaign-quick"
                 >
                   Create
                 </Button>
@@ -152,29 +179,67 @@ export default function Campaigns() {
           </div>
         </Card>
 
+        {/* Cost Estimation Panel */}
+        {selectedSegment && (
+          <CostEstimationPanel
+            segmentId={selectedSegment.id}
+            segmentCount={selectedSegment.count || 0}
+          />
+        )}
+
+        {/* Campaigns List */}
         <Card>
           <div style={{ padding: '16px' }}>
             <BlockStack gap="300">
               <Text as="h2" variant="headingMd">
                 Campaigns
               </Text>
-              <IndexTable
-                resourceName={{ singular: 'campaign', plural: 'campaigns' }}
-                itemCount={list.data?.length || 0}
-                headings={[
-                  { title: 'Name' },
-                  { title: 'Status' },
-                  { title: 'Template' },
-                  { title: 'Schedule' },
-                  { title: 'Open' },
-                ]}
-                selectable={false}
-              >
-                {rows}
-              </IndexTable>
+              
+              {list.isLoading ? (
+                <InlineStack align="center" gap="200">
+                  <Spinner size="small" />
+                  <Text as="p">Loading campaigns...</Text>
+                </InlineStack>
+              ) : list.error ? (
+                <Banner tone="critical">
+                  <Text as="p">Failed to load campaigns: {list.error.message}</Text>
+                </Banner>
+              ) : !list.data || list.data.length === 0 ? (
+                <EmptyState
+                  heading="No campaigns yet"
+                  image="https://cdn.shopify.com/shopifycloud/web/assets/v1/empty-state-illustration.svg"
+                  action={{
+                    content: 'Create Campaign',
+                    onAction: () => setShowWizard(true),
+                  }}
+                >
+                  <Text as="p">Create your first campaign to start sending SMS messages to customers.</Text>
+                </EmptyState>
+              ) : (
+                <IndexTable
+                  resourceName={{ singular: 'campaign', plural: 'campaigns' }}
+                  itemCount={list.data?.length || 0}
+                  headings={[
+                    { title: 'Name' },
+                    { title: 'Status' },
+                    { title: 'Template' },
+                    { title: 'Schedule' },
+                    { title: 'Open' },
+                  ]}
+                  selectable={false}
+                >
+                  {rows}
+                </IndexTable>
+              )}
             </BlockStack>
           </div>
         </Card>
+
+        {/* Campaign Wizard Modal */}
+        <CampaignWizard
+          isOpen={showWizard}
+          onClose={() => setShowWizard(false)}
+        />
       </BlockStack>
     </Page>
   );

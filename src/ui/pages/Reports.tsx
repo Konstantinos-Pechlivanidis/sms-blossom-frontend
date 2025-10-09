@@ -8,6 +8,8 @@ import {
   Button,
   IndexTable,
   Badge,
+  Banner,
+  Spinner,
 } from '@shopify/polaris';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -25,6 +27,8 @@ import {
   Legend,
 } from 'recharts';
 import { KpiSkeletonRow, ChartSkeleton, TableSkeleton } from '../components/Skeletons';
+import { DateRangeSelector, DateRange } from '../../features/reports/components/DateRangeSelector';
+import { ExportControls } from '../../features/reports/components/ExportControls';
 
 type Overview = {
   ok: boolean;
@@ -61,6 +65,11 @@ type AutomationsRes = {
 export default function Reports() {
   const { shop, isReady } = useShop();
   const [windowSel, setWindowSel] = useState<'7d' | '30d' | '90d'>('30d');
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    to: new Date().toISOString().split('T')[0],
+    label: 'Last 30 days'
+  });
 
   const { data: overview, isLoading: loadO } = useQuery({
     queryKey: ['r_overview', shop, windowSel],
@@ -102,6 +111,12 @@ export default function Reports() {
   return (
     <Page title="Reports">
       <BlockStack gap="400">
+        <DateRangeSelector
+          value={dateRange}
+          onChange={setDateRange}
+          data-testid="date-range-selector"
+        />
+
         {loadO ? (
           <KpiSkeletonRow />
         ) : (
@@ -124,13 +139,6 @@ export default function Reports() {
                       value={windowSel}
                       onChange={(v) => setWindowSel(v as any)}
                     />
-                    <Button
-                      onClick={() => {
-                        /* could add from/to pickers in FE-D.1 */
-                      }}
-                    >
-                      Custom… (v2)
-                    </Button>
                   </InlineStack>
                 </InlineStack>
 
@@ -187,6 +195,13 @@ export default function Reports() {
         {loadC ? <TableSkeleton /> : <CampaignAttributionTable data={campaigns?.items || []} />}
 
         {loadA ? <KpiSkeletonRow /> : <AutomationAttributionCard data={automations?.items || []} />}
+
+        <ExportControls
+          data={overview}
+          type="overview"
+          dateRange={dateRange}
+          data-testid="export-controls"
+        />
       </BlockStack>
     </Page>
   );

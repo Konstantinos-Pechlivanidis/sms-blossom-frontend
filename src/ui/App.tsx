@@ -9,17 +9,9 @@ import {
   AutomationIcon,
   PersonIcon as CustomersIcon,
 } from '@shopify/polaris-icons';
-import { Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import React from 'react';
-import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
-import Discounts from './pages/Discounts';
-import Segments from './pages/Segments';
-import Campaigns from './pages/Campaigns';
-import CampaignDetail from './pages/CampaignDetail';
-import Reports from './pages/Reports';
-import Contacts from './pages/Contacts';
-import { AutomationsPage } from '../features/automations/AutomationsPage';
+import { ROUTES } from '../lib/nav';
 import ErrorBoundary from './components/ErrorBoundary';
 import DevBanner from './components/DevBanner';
 import PerformanceDashboard from './components/PerformanceDashboard';
@@ -73,31 +65,20 @@ export default function App() {
       <Frame
         navigation={
           <Navigation location="/">
-            <NavLink to="/" label="Dashboard" icon={HomeIcon} />
-            <NavLink to="/contacts" label="Contacts" icon={CustomersIcon} />
-            <NavLink to="/discounts" label="Discounts" icon={DiscountIcon} />
-            <NavLink to="/segments" label="Segments" icon={PersonIcon} />
-            <NavLink to="/campaigns" label="Campaigns" icon={MentionIcon} />
-            <NavLink to="/automations" label="Automations" icon={AutomationIcon} />
-            <NavLink to="/reports" label="Reports" icon={ViewIcon} />
-            <NavLink to="/settings" label="Settings" icon={SettingsIcon} />
+            <NavLink to={ROUTES.DASHBOARD} label="Dashboard" icon={HomeIcon} />
+            <NavLink to={ROUTES.CONTACTS} label="Contacts" icon={CustomersIcon} />
+            <NavLink to={ROUTES.DISCOUNTS} label="Discounts" icon={DiscountIcon} />
+            <NavLink to={ROUTES.SEGMENTS} label="Segments" icon={PersonIcon} />
+            <NavLink to={ROUTES.CAMPAIGNS} label="Campaigns" icon={MentionIcon} />
+            <NavLink to={ROUTES.AUTOMATIONS} label="Automations" icon={AutomationIcon} />
+            <NavLink to={ROUTES.REPORTS} label="Reports" icon={ViewIcon} />
+            <NavLink to={ROUTES.SETTINGS} label="Settings" icon={SettingsIcon} />
           </Navigation>
         }
       >
         <DevBanner />
         <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/discounts" element={<Discounts />} />
-            <Route path="/segments" element={<Segments />} />
-            <Route path="/campaigns" element={<Campaigns />} />
-            <Route path="/campaigns/:id" element={<CampaignDetail />} />
-            <Route path="/automations" element={<AutomationsPage />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<div style={{ padding: 16 }}>Not found</div>} />
-          </Routes>
+          <Outlet />
         </ErrorBoundary>
         {toast.active && (
           <Toast content={toast.content} onDismiss={() => setToast({ active: false, content: '' })} />

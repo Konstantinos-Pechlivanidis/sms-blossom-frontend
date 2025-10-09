@@ -3,6 +3,7 @@ import { emitApiError } from './events';
 import { ZodSchema } from 'zod';
 import { getErrorInfo, isRetryableError, getRetryDelay } from './errorTaxonomy';
 import { measureApiCall } from './performance';
+import { logApiCall, logApiError } from './log';
 
 // Error taxonomy mapping from Integration Guide
 const ERROR_TAXONOMY = {
@@ -124,6 +125,10 @@ export class EnhancedApiClient {
     try {
       const result = await requestFn();
       endApiCall();
+      
+      // Log successful API call with PII redaction
+      logApiCall('success', context, result);
+      
       return result;
     } catch (error) {
       endApiCall();
@@ -135,7 +140,7 @@ export class EnhancedApiClient {
       const errorMessage = error instanceof Error ? error.message : String(error);
       emitApiError(errorMessage);
       
-      // Log error details for debugging
+      // Log error details for debugging with PII redaction
       if (import.meta.env.DEV) {
         console.error(`[${context}] API Error:`, {
           error,
@@ -143,6 +148,9 @@ export class EnhancedApiClient {
           timestamp: new Date().toISOString(),
         });
       }
+      
+      // Log API error with PII redaction
+      logApiError(error, context);
 
       throw error;
     }

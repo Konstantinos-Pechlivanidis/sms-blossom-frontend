@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Card, BlockStack, Text, Button, InlineStack } from '@shopify/polaris';
+import { Page, Card, BlockStack, Text, Button, InlineStack, Banner } from '@shopify/polaris';
 import { logError } from '../../lib/telemetry';
 
 type Props = { children: React.ReactNode };
@@ -21,17 +21,23 @@ export default class ErrorBoundary extends React.Component<Props, State> {
   }
   render() {
     if (!this.state.hasError) return this.props.children;
+    
+    // Generate a request ID for this error
+    const requestId = `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     return (
       <Page title="Something went wrong">
         <Card>
           <div style={{ padding: '16px' }}>
             <BlockStack gap="300">
-              <Text as="p" tone="critical">
-                An unexpected error occurred.
-              </Text>
-              <Text as="p" tone="subdued">
-                {String(this.state.error?.message || '')}
-              </Text>
+              <Banner tone="critical" title="An unexpected error occurred">
+                <Text as="p" tone="subdued">
+                  {String(this.state.error?.message || 'Unknown error')}
+                </Text>
+                <Text as="p" variant="bodySm" tone="subdued">
+                  Request ID: {requestId}
+                </Text>
+              </Banner>
               <InlineStack gap="200">
                 <Button onClick={() => this.setState({ hasError: false, error: undefined })}>
                   Try again

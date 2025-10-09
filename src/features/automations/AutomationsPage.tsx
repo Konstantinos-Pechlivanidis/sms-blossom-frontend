@@ -13,6 +13,8 @@ import {
   Tabs,
   Box,
   Divider,
+  Modal,
+  TextField,
 } from '@shopify/polaris';
 import {
   AutomationCard,
@@ -24,6 +26,9 @@ import {
   useAutomations,
   useUpdateAutomations,
   useToggleAutomation,
+  usePreviewTemplate,
+  useTestSend,
+  useAutomationMetrics,
 } from './hooks';
 
 // Template Drawer Component
@@ -168,6 +173,16 @@ export function AutomationsPage() {
     triggerKey: string;
     template: string;
   }>({ isOpen: false, triggerKey: '', template: '' });
+  const [previewModal, setPreviewModal] = useState<{
+    isOpen: boolean;
+    triggerKey: string;
+    template: string;
+  }>({ isOpen: false, triggerKey: '', template: '' });
+  const [testModal, setTestModal] = useState<{
+    isOpen: boolean;
+    triggerKey: string;
+    template: string;
+  }>({ isOpen: false, triggerKey: '', template: '' });
 
   const automationConfigs = [
     {
@@ -264,6 +279,24 @@ export function AutomationsPage() {
     });
   };
 
+  const handlePreview = (triggerKey: string) => {
+    const config = automations?.automations[triggerKey as keyof typeof automations.automations];
+    setPreviewModal({
+      isOpen: true,
+      triggerKey,
+      template: config?.template || '',
+    });
+  };
+
+  const handleTest = (triggerKey: string) => {
+    const config = automations?.automations[triggerKey as keyof typeof automations.automations];
+    setTestModal({
+      isOpen: true,
+      triggerKey,
+      template: config?.template || '',
+    });
+  };
+
   if (isLoading) {
     return (
       <Page title="Automations">
@@ -340,6 +373,7 @@ export function AutomationsPage() {
               {automationConfigs.map((config) => {
                 const automationData = automations.automations[config.key];
                 const { toggle, isUpdating } = useToggleAutomation(config.key);
+                const { data: metrics } = useAutomationMetrics(config.key, '7d');
 
                 return (
                   <AutomationCard
@@ -351,17 +385,13 @@ export function AutomationsPage() {
                     onToggle={(enabled) => toggle(enabled)}
                     onEditTemplate={() => handleEditTemplate(config.key)}
                     onEditRules={() => handleEditRules(config.key)}
-                    onPreview={() => {
-                      // TODO: Implement preview
-                    }}
-                    onTest={() => {
-                      // TODO: Implement test send
-                    }}
+                    onPreview={() => handlePreview(config.key)}
+                    onTest={() => handleTest(config.key)}
                     isLoading={isUpdating}
                     metrics={{
-                      sent: 0, // TODO: Get from reports
-                      delivered: 0,
-                      ctr: 0,
+                      sent: metrics?.automations?.[config.key]?.sent || 0,
+                      delivered: metrics?.automations?.[config.key]?.delivered || 0,
+                      ctr: metrics?.automations?.[config.key]?.ctr || 0,
                       period: '7 days',
                     }}
                   />
@@ -398,7 +428,274 @@ export function AutomationsPage() {
           initialRules={automations?.automations[rulesModal.triggerKey as keyof typeof automations.automations]?.rules}
           isLoading={updateAutomations.isPending}
         />
+
+        {/* Preview Modal */}
+        <PreviewModal
+          isOpen={previewModal.isOpen}
+          onClose={() => setPreviewModal({ isOpen: false, triggerKey: '', template: '' })}
+          triggerKey={previewModal.triggerKey}
+          template={previewModal.template}
+        />
+
+        {/* Test Modal */}
+        <TestModal
+          isOpen={testModal.isOpen}
+          onClose={() => setTestModal({ isOpen: false, triggerKey: '', template: '' })}
+          triggerKey={testModal.triggerKey}
+          template={testModal.template}
+        />
       </Layout>
     </Page>
+  );
+}
+
+// Preview Modal Component
+function PreviewModal({
+  isOpen,
+  onClose,
+  triggerKey,
+  template,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  triggerKey: string;
+  template: string;
+}) {
+  const [variables, setVariables] = useState<Record<string, string>>({});
+  const { data: preview, isLoading, error } = usePreviewTemplate(triggerKey, template, variables);
+
+  const triggerVariables = {
+    abandoned: {
+      customer_name: 'John Doe',
+      checkout_url: 'https://shop.myshopify.com/checkout/123',
+      cart_total: '$99.99',
+      discount_code: 'SAVE10',
+    },
+    orderPaid: {
+      customer_name: 'John Doe',
+      order_number: '#1001',
+      order_total: '$99.99',
+      tracking_url: 'https://tracking.com/123',
+    },
+    fulfillmentUpdate: {
+      customer_name: 'John Doe',
+      order_number: '#1001',
+      tracking_number: '1Z999AA1234567890',
+      tracking_url: 'https://tracking.com/123',
+    },
+    welcome: {
+      customer_name: 'John Doe',
+      discount_code: 'WELCOME10',
+      discount_value: '10%',
+    },
+    backInStock: {
+      customer_name: 'John Doe',
+      product_name: 'Amazing Product',
+      product_url: 'https://shop.myshopify.com/products/amazing',
+    },
+  };
+
+  const availableVariables = triggerVariables[triggerKey as keyof typeof triggerVariables] || {};
+
+  if (!isOpen) return null;
+
+  return (
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title={`Preview Template - ${triggerKey}`}
+      primaryAction={{
+        content: 'Close',
+        onAction: onClose,
+      }}
+      size="large"
+    >
+      <Modal.Section>
+        <BlockStack gap="400">
+          <Text variant="bodyMd" as="p">
+            Preview how your template will look with sample data:
+          </Text>
+          
+          <Box>
+            <Text variant="bodyMd" fontWeight="semibold" as="h4">
+              Template Variables:
+            </Text>
+            <InlineStack gap="200" wrap>
+              {Object.entries(availableVariables).map(([key, value]) => (
+                <Button
+                  key={key}
+                  variant="tertiary"
+                  size="slim"
+                  onClick={() => {
+                    setVariables(prev => ({ ...prev, [key]: value }));
+                  }}
+                >
+                  {key}: {value}
+                </Button>
+              ))}
+            </InlineStack>
+          </Box>
+
+          {isLoading && (
+            <InlineStack align="center" gap="200">
+              <Spinner size="small" />
+              <Text as="p">Generating preview...</Text>
+            </InlineStack>
+          )}
+
+          {error && (
+            <Banner tone="critical">
+              <Text as="p">Failed to generate preview: {error.message}</Text>
+            </Banner>
+          )}
+
+          {preview && (
+            <Box>
+              <Text variant="bodyMd" fontWeight="semibold" as="h4">
+                Preview Result:
+              </Text>
+              <Box padding="300" background="bg-surface-secondary">
+                <div style={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                  {preview.rendered || preview.template || 'No preview available'}
+                </div>
+              </Box>
+            </Box>
+          )}
+        </BlockStack>
+      </Modal.Section>
+    </Modal>
+  );
+}
+
+// Test Modal Component
+function TestModal({
+  isOpen,
+  onClose,
+  triggerKey,
+  template,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  triggerKey: string;
+  template: string;
+}) {
+  const [phone, setPhone] = useState('');
+  const [variables, setVariables] = useState<Record<string, string>>({});
+  const testSend = useTestSend(triggerKey, phone, variables);
+
+  const triggerVariables = {
+    abandoned: {
+      customer_name: 'John Doe',
+      checkout_url: 'https://shop.myshopify.com/checkout/123',
+      cart_total: '$99.99',
+      discount_code: 'SAVE10',
+    },
+    orderPaid: {
+      customer_name: 'John Doe',
+      order_number: '#1001',
+      order_total: '$99.99',
+      tracking_url: 'https://tracking.com/123',
+    },
+    fulfillmentUpdate: {
+      customer_name: 'John Doe',
+      order_number: '#1001',
+      tracking_number: '1Z999AA1234567890',
+      tracking_url: 'https://tracking.com/123',
+    },
+    welcome: {
+      customer_name: 'John Doe',
+      discount_code: 'WELCOME10',
+      discount_value: '10%',
+    },
+    backInStock: {
+      customer_name: 'John Doe',
+      product_name: 'Amazing Product',
+      product_url: 'https://shop.myshopify.com/products/amazing',
+    },
+  };
+
+  const availableVariables = triggerVariables[triggerKey as keyof typeof triggerVariables] || {};
+
+  const handleTestSend = async () => {
+    if (!phone.trim()) return;
+    
+    try {
+      await testSend.mutateAsync();
+      // Show success message
+    } catch (error) {
+      // Error is handled by the hook
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title={`Test Send - ${triggerKey}`}
+      primaryAction={{
+        content: 'Send Test',
+        onAction: handleTestSend,
+        loading: testSend.isPending,
+        disabled: !phone.trim(),
+      }}
+      secondaryActions={[
+        {
+          content: 'Cancel',
+          onAction: onClose,
+        },
+      ]}
+      size="large"
+    >
+      <Modal.Section>
+        <BlockStack gap="400">
+          <Text variant="bodyMd" as="p">
+            Send a test message to verify your template:
+          </Text>
+          
+          <TextField
+            label="Phone Number"
+            value={phone}
+            onChange={setPhone}
+            placeholder="+1234567890"
+            autoComplete="off"
+            helpText="Enter a phone number to receive the test message"
+          />
+
+          <Box>
+            <Text variant="bodyMd" fontWeight="semibold" as="h4">
+              Template Variables:
+            </Text>
+            <InlineStack gap="200" wrap>
+              {Object.entries(availableVariables).map(([key, value]) => (
+                <Button
+                  key={key}
+                  variant="tertiary"
+                  size="slim"
+                  onClick={() => {
+                    setVariables(prev => ({ ...prev, [key]: value }));
+                  }}
+                >
+                  {key}: {value}
+                </Button>
+              ))}
+            </InlineStack>
+          </Box>
+
+          {testSend.error && (
+            <Banner tone="critical">
+              <Text as="p">Failed to send test: {testSend.error.message}</Text>
+            </Banner>
+          )}
+
+          {testSend.isSuccess && (
+            <Banner tone="success">
+              <Text as="p">Test message sent successfully!</Text>
+            </Banner>
+          )}
+        </BlockStack>
+      </Modal.Section>
+    </Modal>
   );
 }

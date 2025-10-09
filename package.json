@@ -66,6 +66,7 @@
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "eslint-plugin-react": "^7.37.0",
     "eslint-plugin-react-hooks": "^6.0.0",
+    "jest-axe": "^10.0.0",
     "jsdom": "^27.0.0",
     "msw": "^2.11.3",
     "openapi-typescript": "^7.9.1",
