@@ -28,6 +28,7 @@ export const ROUTES = {
   CONTACTS: buildPath('/contacts'),
   DISCOUNTS: buildPath('/discounts'),
   SEGMENTS: buildPath('/segments'),
+  TEMPLATES: buildPath('/templates'),
   CAMPAIGNS: buildPath('/campaigns'),
   CAMPAIGN_DETAIL: (id: string) => buildPath(`/campaigns/${id}`),
   AUTOMATIONS: buildPath('/automations'),

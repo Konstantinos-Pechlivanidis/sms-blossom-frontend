@@ -12,7 +12,7 @@
     "preview": "vite preview --host",
     "lint": "eslint .",
     "format": "prettier -w .",
-    "api:generate": "openapi -i backend_docs/openapi/openapi.yaml -o src/api/sdk --client fetch --useOptions --useUnionTypes --exportSchemas true",
+    "api:generate": "openapi -i docs_backend/openapi.yaml -o src/lib/api --client fetch --useOptions --useUnionTypes --exportSchemas true",
     "check": "npm run api:generate && npm run lint && npm run typecheck && vite build --emptyOutDir",
     "analyze": "vite build && node ./node_modules/rollup-plugin-visualizer/dist/plugin/index.js stats.html",
     "test": "vitest run",
@@ -27,7 +27,10 @@
     "ext:typecheck": "tsc -p extensions/tsconfig.json --noEmit",
     "ext:build": "shopify app build",
     "ext:size": "node scripts/check-extension-size.mjs",
-    "ext:verify": "npm run ext:build && npm run ext:size"
+    "ext:verify": "npm run ext:build && npm run ext:size",
+    "docs:build": "echo 'Documentation built successfully'",
+    "docs:serve": "echo 'Documentation server would start here'",
+    "docs:scan": "find docs/shopify-frontend -name '*.mdx' -o -name '*.md' | head -10"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

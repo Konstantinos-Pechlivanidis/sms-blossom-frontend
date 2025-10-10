@@ -1,0 +1,87 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+export { ApiError } from './core/ApiError';
+export { CancelablePromise, CancelError } from './core/CancelablePromise';
+export { OpenAPI } from './core/OpenAPI';
+export type { OpenAPIConfig } from './core/OpenAPI';
+
+export type { AbandonedCheckout } from './models/AbandonedCheckout';
+export type { Automation } from './models/Automation';
+export type { Campaign } from './models/Campaign';
+export type { CampaignEstimate } from './models/CampaignEstimate';
+export type { CampaignListResponse } from './models/CampaignListResponse';
+export type { CreateCampaignRequest } from './models/CreateCampaignRequest';
+export type { CreateDiscountRequest } from './models/CreateDiscountRequest';
+export type { CreateSegmentRequest } from './models/CreateSegmentRequest';
+export type { CreateTemplateRequest } from './models/CreateTemplateRequest';
+export type { Discount } from './models/Discount';
+export type { DiscountCode } from './models/DiscountCode';
+export type { DiscountCodePool } from './models/DiscountCodePool';
+export type { DiscountCodeReservation } from './models/DiscountCodeReservation';
+export type { DiscountConflict } from './models/DiscountConflict';
+export type { DiscountListResponse } from './models/DiscountListResponse';
+export type { ErrorResponse } from './models/ErrorResponse';
+export type { HealthResponse } from './models/HealthResponse';
+export type { MessagingReport } from './models/MessagingReport';
+export type { MittoDLRPayload } from './models/MittoDLRPayload';
+export type { MittoInboundPayload } from './models/MittoInboundPayload';
+export type { OverviewReport } from './models/OverviewReport';
+export type { PaginatedResponse } from './models/PaginatedResponse';
+export type { QueueHealthResponse } from './models/QueueHealthResponse';
+export type { QueueStatus } from './models/QueueStatus';
+export type { Segment } from './models/Segment';
+export type { SegmentListResponse } from './models/SegmentListResponse';
+export type { ShopSettings } from './models/ShopSettings';
+export type { SMSSegments } from './models/SMSSegments';
+export type { Template } from './models/Template';
+export type { TemplateListResponse } from './models/TemplateListResponse';
+export type { UpdateCampaignRequest } from './models/UpdateCampaignRequest';
+export type { UpdateDiscountRequest } from './models/UpdateDiscountRequest';
+export type { UpdateSettingsRequest } from './models/UpdateSettingsRequest';
+
+export { $AbandonedCheckout } from './schemas/$AbandonedCheckout';
+export { $Automation } from './schemas/$Automation';
+export { $Campaign } from './schemas/$Campaign';
+export { $CampaignEstimate } from './schemas/$CampaignEstimate';
+export { $CampaignListResponse } from './schemas/$CampaignListResponse';
+export { $CreateCampaignRequest } from './schemas/$CreateCampaignRequest';
+export { $CreateDiscountRequest } from './schemas/$CreateDiscountRequest';
+export { $CreateSegmentRequest } from './schemas/$CreateSegmentRequest';
+export { $CreateTemplateRequest } from './schemas/$CreateTemplateRequest';
+export { $Discount } from './schemas/$Discount';
+export { $DiscountCode } from './schemas/$DiscountCode';
+export { $DiscountCodePool } from './schemas/$DiscountCodePool';
+export { $DiscountCodeReservation } from './schemas/$DiscountCodeReservation';
+export { $DiscountConflict } from './schemas/$DiscountConflict';
+export { $DiscountListResponse } from './schemas/$DiscountListResponse';
+export { $ErrorResponse } from './schemas/$ErrorResponse';
+export { $HealthResponse } from './schemas/$HealthResponse';
+export { $MessagingReport } from './schemas/$MessagingReport';
+export { $MittoDLRPayload } from './schemas/$MittoDLRPayload';
+export { $MittoInboundPayload } from './schemas/$MittoInboundPayload';
+export { $OverviewReport } from './schemas/$OverviewReport';
+export { $PaginatedResponse } from './schemas/$PaginatedResponse';
+export { $QueueHealthResponse } from './schemas/$QueueHealthResponse';
+export { $QueueStatus } from './schemas/$QueueStatus';
+export { $Segment } from './schemas/$Segment';
+export { $SegmentListResponse } from './schemas/$SegmentListResponse';
+export { $ShopSettings } from './schemas/$ShopSettings';
+export { $SMSSegments } from './schemas/$SMSSegments';
+export { $Template } from './schemas/$Template';
+export { $TemplateListResponse } from './schemas/$TemplateListResponse';
+export { $UpdateCampaignRequest } from './schemas/$UpdateCampaignRequest';
+export { $UpdateDiscountRequest } from './schemas/$UpdateDiscountRequest';
+export { $UpdateSettingsRequest } from './schemas/$UpdateSettingsRequest';
+
+export { AuthenticationService } from './services/AuthenticationService';
+export { CampaignsService } from './services/CampaignsService';
+export { DiscountsService } from './services/DiscountsService';
+export { HealthService } from './services/HealthService';
+export { PublicService } from './services/PublicService';
+export { ReportsService } from './services/ReportsService';
+export { SegmentsService } from './services/SegmentsService';
+export { SettingsService } from './services/SettingsService';
+export { TemplatesService } from './services/TemplatesService';
+export { WebhooksService } from './services/WebhooksService';

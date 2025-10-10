@@ -1,0 +1,88 @@
+# Templates Page
+
+## Purpose
+Manage SMS templates for different automation triggers like abandoned checkouts, order confirmations, and welcome messages.
+
+## State Chart
+```
+Loading → Templates List → Create Modal → Preview Modal
+    ↓           ↓              ↓            ↓
+  Skeleton   Template      Form Input    Rendered
+    ↓           ↓              ↓         Preview
+  Error      Actions      Validation    Warnings
+  Banner     (Preview)     (Template)    (SMS Parts)
+```
+
+## Polaris Components Used
+- `Page` - Main page container with primary action
+- `Card` - Content sections
+- `IndexTable` - Template list display
+- `Modal` - Create template and preview modals
+- `FormLayout` - Form structure
+- `TextField` - Template name and body input
+- `Select` - Trigger type selection
+- `ButtonGroup` - Action buttons
+- `EmptyState` - No templates state
+- `Banner` - Error messages
+
+## Backend Endpoints
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/templates` | List templates with optional trigger filter |
+| POST | `/templates` | Create new template |
+| POST | `/templates/preview` | Preview template with sample data |
+| POST | `/templates/validate` | Validate template syntax |
+| GET | `/templates/variables/{trigger}` | Get available variables for trigger |
+
+## Shopify Admin API Reference Operations
+- None (Templates are managed via backend API)
+
+## User Actions & Validation Rules
+
+### Create Template
+- **Action**: User clicks "Create Template" button
+- **Validation**: 
+  - Name: Required, max 255 characters
+  - Trigger: Required, must be valid trigger type
+  - Body: Required, max 1600 characters, valid Liquid syntax
+- **Effect**: Template created and list refreshed
+
+### Preview Template
+- **Action**: User clicks "Preview" button
+- **Validation**: Template body must be valid Liquid syntax
+- **Effect**: Shows rendered text, warnings, and SMS segment info
+
+### Validate Template
+- **Action**: Automatic validation on form input
+- **Validation**: Checks Liquid syntax and required variables
+- **Effect**: Shows validation errors and warnings
+
+### Filter by Trigger
+- **Action**: User selects trigger filter
+- **Validation**: Valid trigger type selection
+- **Effect**: Filters template list by trigger type
+
+## Data Flow
+1. Component mounts → Shop context available
+2. Templates fetched with optional trigger filter
+3. User can create new template via modal
+4. Template preview shows rendered output
+5. Validation ensures proper Liquid syntax
+6. Template list updates after creation
+
+## Template Triggers Supported
+- `abandoned_checkout` - Abandoned checkout recovery
+- `order_created` - Order confirmation
+- `order_paid` - Payment confirmation
+- `fulfillment_update` - Shipping updates
+- `welcome` - Welcome messages
+- `back_in_stock` - Back in stock notifications
+
+## Liquid Template Variables
+Each trigger type provides specific variables:
+- **Customer**: `{{ customer.first_name }}`, `{{ customer.last_name }}`
+- **Order**: `{{ order.number }}`, `{{ order.total }}`
+- **Product**: `{{ product.title }}`, `{{ product.url }}`
+- **Shop**: `{{ shop.name }}`, `{{ shop.url }}`
+- **Recovery**: `{{ recovery_url }}` (abandoned checkout)

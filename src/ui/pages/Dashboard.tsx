@@ -1,6 +1,6 @@
 import { Card, Page, Text, InlineStack, BlockStack, Banner, Button, Select, Spinner } from '@shopify/polaris';
 import { useState } from 'react';
-import { useDashboardAnalytics, useSystemHealth } from '../../features/dashboard/hooks';
+import { useOverviewReport, useHealth } from '../../lib/api/hooks';
 import { useShop } from '../../lib/shopContext';
 import { KpiSkeletonRow, ChartSkeleton } from '../components/Skeletons';
 import { logPageView, logFeatureUsage } from '../../lib/telemetry';
@@ -18,8 +18,8 @@ export default function Dashboard() {
   // Track page view
   logPageView('dashboard', window.location.href);
   
-  const { metrics, trends, health: healthData, isLoading, error } = useDashboardAnalytics(dateRange);
-  const { status: healthStatus, message: healthMessage, details: healthDetails, isLoading: healthLoading, error: healthError } = useSystemHealth();
+  const { data: overviewData, isLoading: overviewLoading, error: overviewError } = useOverviewReport({ period: dateRange as any });
+  const { data: healthData, isLoading: healthLoading, error: healthError } = useHealth();
 
   const handleDateRangeChange = (value: string) => {
     setDateRange(value);
@@ -37,7 +37,7 @@ export default function Dashboard() {
     <Page title="Dashboard">
       <BlockStack gap="400">
         {/* Error Banner */}
-        {error && (
+        {overviewError && (
           <Banner tone="critical" title="Failed to load dashboard data">
             <p>Unable to load dashboard metrics. Please try again.</p>
             <Button onClick={handleRetry}>Retry</Button>
@@ -45,9 +45,9 @@ export default function Dashboard() {
         )}
 
         {/* Health Status Banner */}
-        {healthStatus && healthStatus !== 'healthy' && (
+        {healthData && !healthData.ok && (
           <Banner tone="warning" title="System Health Alert">
-            <p>{healthMessage}</p>
+            <p>System health issues detected. Please check the health section below.</p>
           </Banner>
         )}
 
@@ -70,9 +70,9 @@ export default function Dashboard() {
         </Card>
 
         {/* KPIs Section */}
-        {isLoading ? (
+        {overviewLoading ? (
           <KpiSkeletonRow />
-        ) : metrics ? (
+        ) : overviewData ? (
           <Card>
             <div style={{ padding: '16px' }}>
               <BlockStack gap="200">
@@ -80,15 +80,12 @@ export default function Dashboard() {
                   Key Performance Indicators
                 </Text>
                 <InlineStack gap="600" wrap>
-                  <Stat label="Messages Sent" value={metrics.totalSent} />
-                  <Stat label="Messages Delivered" value={metrics.totalDelivered} />
-                  <Stat label="Messages Failed" value={metrics.totalFailed} />
-                  <Stat label="Delivery Rate" value={`${metrics.deliveryRate.toFixed(1)}%`} />
-                  <Stat label="Open Rate" value={`${metrics.openRate.toFixed(1)}%`} />
-                  <Stat label="Click Rate" value={`${metrics.clickRate.toFixed(1)}%`} />
-                  <Stat label="Total Revenue" value={`€${(metrics.totalRevenue?.total || 0).toFixed(2)}`} />
-                  <Stat label="Total Cost" value={`€${metrics.totalCost.toFixed(2)}`} />
-                  <Stat label="ROI" value={`${metrics.roi.toFixed(1)}%`} />
+                  <Stat label="Messages Sent" value={overviewData.totalMessages} />
+                  <Stat label="Messages Delivered" value={overviewData.deliveredMessages} />
+                  <Stat label="Messages Failed" value={overviewData.failedMessages} />
+                  <Stat label="Opt Outs" value={overviewData.optOuts} />
+                  <Stat label="Total Revenue" value={`$${overviewData.revenue.toFixed(2)}`} />
+                  <Stat label="Avg Delivery Time" value={`${overviewData.averageDeliveryTime}s`} />
                 </InlineStack>
               </BlockStack>
             </div>
@@ -103,31 +100,25 @@ export default function Dashboard() {
           </Card>
         )}
 
-        {/* Trends Section */}
-        {isLoading ? (
-          <ChartSkeleton />
-        ) : trends ? (
+        {/* Top Campaigns Section */}
+        {overviewData?.topCampaigns && overviewData.topCampaigns.length > 0 && (
           <Card>
             <div style={{ padding: '16px' }}>
               <BlockStack gap="200">
                 <Text as="h2" variant="headingMd">
-                  Messaging Trends
+                  Top Campaigns
                 </Text>
                 <div style={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', fontSize: '14px' }}>
-                  {trends.sent
-                    ?.map(
-                      (point: any, index: number) => {
-                        const delivered = trends.delivered[index];
-                        const revenue = trends.revenue[index];
-                        return `${point.date}  sent:${point.value}  deliv:${delivered?.value || 0}  €${revenue?.value?.toFixed(2) || '0.00'}`;
-                      }
+                  {overviewData.topCampaigns
+                    .map((campaign: any) => 
+                      `${campaign.name}  messages:${campaign.messages}  revenue:$${campaign.revenue.toFixed(2)}`
                     )
-                    .join('\n') || '—'}
+                    .join('\n')}
                 </div>
               </BlockStack>
             </div>
           </Card>
-        ) : null}
+        )}
 
         {/* System Health Section */}
         {healthLoading ? (
@@ -139,7 +130,7 @@ export default function Dashboard() {
               </InlineStack>
             </div>
           </Card>
-        ) : healthDetails ? (
+        ) : healthData ? (
           <Card>
             <div style={{ padding: '16px' }}>
               <BlockStack gap="200">
@@ -149,19 +140,19 @@ export default function Dashboard() {
                 <InlineStack gap="400">
                   <HealthIndicator 
                     label="Overall" 
-                    status={healthDetails.overall ? 'healthy' : 'unhealthy'} 
+                    status={healthData.ok ? 'healthy' : 'unhealthy'} 
                   />
                   <HealthIndicator 
                     label="Database" 
-                    status={healthDetails.database?.ok ? 'healthy' : 'unhealthy'} 
+                    status={healthData.db?.ok ? 'healthy' : 'unhealthy'} 
                   />
                   <HealthIndicator 
                     label="Redis" 
-                    status={healthDetails.redis?.ok ? 'healthy' : 'unhealthy'} 
+                    status={healthData.redis?.ok ? 'healthy' : 'unhealthy'} 
                   />
                   <HealthIndicator 
-                    label="Queue" 
-                    status={healthDetails.queue?.ok ? 'healthy' : 'unhealthy'} 
+                    label="Queues" 
+                    status={healthData.queues?.ok ? 'healthy' : 'unhealthy'} 
                   />
                 </InlineStack>
               </BlockStack>

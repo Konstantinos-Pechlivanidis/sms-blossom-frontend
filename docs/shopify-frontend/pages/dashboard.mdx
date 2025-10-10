@@ -1,0 +1,70 @@
+# Dashboard Page
+
+## Purpose
+The Dashboard provides a comprehensive overview of SMS marketing performance, system health, and key metrics for the authenticated shop.
+
+## State Chart
+```
+Loading → Data Available → Error State
+    ↓           ↓            ↓
+  Skeleton   KPI Cards    Error Banner
+    ↓           ↓            ↓
+  Health     Top         Retry Button
+  Status     Campaigns
+```
+
+## Polaris Components Used
+- `Page` - Main page container
+- `Card` - Content sections
+- `InlineStack` - Horizontal layouts
+- `BlockStack` - Vertical layouts
+- `Banner` - Error and warning messages
+- `Select` - Date range picker
+- `Spinner` - Loading indicators
+- `Text` - Typography
+- `Button` - Actions
+
+## Backend Endpoints
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/reports/overview` | Get overview metrics and KPIs |
+| GET | `/health` | System health status |
+
+## Shopify Admin API Reference Operations
+- None (Dashboard uses backend API only)
+
+## User Actions & Validation Rules
+
+### Date Range Selection
+- **Action**: User selects date range (7d, 30d, 90d, 1y)
+- **Validation**: Valid date range values only
+- **Effect**: Refreshes overview data
+
+### Retry on Error
+- **Action**: User clicks retry button
+- **Validation**: Only available when error state
+- **Effect**: Refetches all dashboard data
+
+### Health Status Display
+- **Action**: System health monitoring
+- **Validation**: Automatic health checks
+- **Effect**: Shows warning banner if unhealthy
+
+## Data Flow
+1. Component mounts → Shop context available
+2. API client configured with shop domain
+3. Overview report fetched with selected date range
+4. Health status checked
+5. Data rendered in KPI cards and health indicators
+6. Error states handled with retry options
+
+## Key Metrics Displayed
+- Total Messages Sent
+- Messages Delivered
+- Messages Failed
+- Opt Outs
+- Total Revenue
+- Average Delivery Time
+- Top Performing Campaigns
+- System Health Status (Database, Redis, Queues)

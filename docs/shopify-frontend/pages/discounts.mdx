@@ -1,0 +1,113 @@
+# Discounts Page
+
+## Purpose
+Manage discount codes and pools for SMS campaigns, including Shopify integration and bulk code generation.
+
+## State Chart
+```
+Loading → Discounts List → Create Modal → Pool Management
+    ↓           ↓              ↓              ↓
+  Skeleton   Discount      Form Input     Pool Status
+    ↓           ↓              ↓              ↓
+  Error      Actions      Validation     Code Import
+  Banner     (Edit/       (Code Check)    Generation
+             Delete)                     Reservation
+```
+
+## Polaris Components Used
+- `Page` - Main page container
+- `Card` - Content sections
+- `IndexTable` - Discount list
+- `Modal` - Create/edit modals
+- `FormLayout` - Form structure
+- `TextField` - Discount code and title
+- `Select` - Discount type selection
+- `DatePicker` - Start/end dates
+- `NumberField` - Value and usage limits
+- `DropZone` - CSV file upload
+- `DataTable` - Pool status display
+- `Banner` - Status messages
+
+## Backend Endpoints
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/discounts` | List discounts with pagination and filters |
+| POST | `/discounts` | Create new discount |
+| GET | `/discounts/{id}` | Get discount details |
+| PUT | `/discounts/{id}` | Update discount |
+| DELETE | `/discounts/{id}` | Delete discount |
+| POST | `/discounts/conflicts` | Check for code conflicts |
+| POST | `/discounts/sync-from-shopify` | Import existing discounts |
+| POST | `/discounts/{id}/pool/import` | Import codes to pool |
+| POST | `/discounts/{id}/pool/generate` | Generate codes for pool |
+| GET | `/discounts/{id}/pool/status` | Get pool statistics |
+| POST | `/discounts/{id}/pool/reserve` | Reserve codes for campaign |
+| DELETE | `/discounts/{id}/pool/reservations/{id}` | Cancel reservation |
+
+## Shopify Admin API Reference Operations
+- **Discount Code API**: Create, update, delete discount codes
+- **Price Rules API**: Manage discount rules and conditions
+- **Usage Tracking**: Monitor discount code usage
+
+## User Actions & Validation Rules
+
+### Create Discount
+- **Action**: User clicks "Create Discount" button
+- **Validation**:
+  - Code: Required, unique, alphanumeric with hyphens/underscores
+  - Type: Required (percentage, amount, shipping)
+  - Value: Required, positive number
+  - Dates: Start date must be before end date
+- **Effect**: Discount created in Shopify and backend
+
+### Check Conflicts
+- **Action**: Automatic validation on code input
+- **Validation**: Checks for existing codes and similar patterns
+- **Effect**: Shows conflict warnings and suggestions
+
+### Sync from Shopify
+- **Action**: User clicks "Sync from Shopify" button
+- **Validation**: Valid Shopify connection
+- **Effect**: Imports existing discount metadata
+
+### Pool Management
+- **Action**: User manages discount code pools
+- **Validation**:
+  - Import: Valid CSV format with codes
+  - Generate: Positive quantity, valid pattern
+  - Reserve: Sufficient available codes
+- **Effect**: Updates pool status and reservations
+
+## Data Flow
+1. Component mounts → Shop context available
+2. Discounts fetched from backend
+3. User creates discount via form
+4. Conflict check ensures code uniqueness
+5. Pool management for bulk code operations
+6. Real-time pool status updates
+7. Campaign integration for code assignment
+
+## Discount Types
+- **Percentage**: `20%` off order total
+- **Amount**: `$10` off order total
+- **Shipping**: Free shipping discount
+
+## Pool Management Features
+- **Code Import**: Upload CSV files with existing codes
+- **Code Generation**: Auto-generate codes with patterns
+- **Reservation System**: Reserve codes for campaigns
+- **Usage Tracking**: Monitor code usage and availability
+- **Conflict Prevention**: Check for duplicate codes
+
+## CSV Import Format
+```csv
+code,title,type,value,starts_at,ends_at,usage_limit
+SAVE20,20% Off,percentage,20,2024-01-01,2024-01-31,1000
+SAVE10,$10 Off,amount,10,2024-01-01,2024-01-31,500
+```
+
+## Code Generation Patterns
+- `SAVE20_{NUMBER}` - SAVE20_001, SAVE20_002, etc.
+- `DISCOUNT_{RANDOM}` - DISCOUNT_A1B2, DISCOUNT_C3D4, etc.
+- `PROMO_{DATE}` - PROMO_20240101, PROMO_20240102, etc.
