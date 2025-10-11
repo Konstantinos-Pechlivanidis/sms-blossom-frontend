@@ -1,13 +1,13 @@
 import React from 'react';
 import { Page, EmptyState, Button, BlockStack, Text } from '@shopify/polaris';
 import { HomeIcon } from '@shopify/polaris-icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithHost } from '../../lib/navigation/useNavigateWithHost';
 
 export default function NotFoundPage() {
-  const navigate = useNavigate();
+  const navigateWithHost = useNavigateWithHost();
 
   const handleBackToDashboard = () => {
-    navigate('/');
+    navigateWithHost('/');
   };
 
   return (

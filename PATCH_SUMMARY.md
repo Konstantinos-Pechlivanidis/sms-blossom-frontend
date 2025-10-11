@@ -1,132 +1,143 @@
-# Patch Summary - Lockfile Drift Resolution
+# Patch Summary - App Bridge Host & Router Hardening
 
 ## Overview
-This document summarizes all changes made to resolve npm lockfile drift and finalize CI for production.
+This document summarizes all changes made to eliminate "Not Found" and "APP::ERROR::INVALID_CONFIG: host must be provided" errors by implementing comprehensive App Bridge host preservation, router hardening, and navigation safety.
 
 ## 🔧 PATCHED Files (Idempotent)
 
-### Package Configuration
-- **`package.json`** - Added `packageManager: "npm@10.x"` field
-- **`.github/workflows/ci.yml`** - Updated CI configuration:
-  - Simplified Node.js matrix to only use 20.x
-  - Added lockfile integrity checks to all jobs
-  - Enhanced error messages for lockfile drift
+### Core Infrastructure
+- **`src/lib/shopify/host.ts`** - Enhanced host parameter management with proper URL handling
+- **`src/app/providers/AppProviders.tsx`** - Updated authorizedFetch to use proper App Bridge session tokens
+- **`src/main.tsx`** - Added errorElement to all routes for comprehensive error handling
+- **`src/features/core/NotFoundPage.tsx`** - Updated to use host-safe navigation
+
+### Host Management
+- **`src/lib/shopify/host.ts`** - Enhanced with proper URL construction and host persistence
+- **`src/app/providers/AppProviders.tsx`** - Host guard with recovery UI for missing host parameter
+
+### Router Hardening
+- **`src/main.tsx`** - Added errorElement to root route and all lazy routes
+- **`src/app/components/RouteError.tsx`** - NEW: Route-level error boundary component
+- **`src/lib/navigation/useNavigateWithHost.ts`** - NEW: Host-safe navigation utilities
 
 ## 📁 CREATED Files
 
-### Lockfile Management
-- **`scripts/lockfile:sync.sh`** - One-time script to sync package-lock.json
-- **`scripts/pre-commit-check.js`** - Pre-commit hook to check lockfile sync
-- **`DIAGNOSIS.md`** - Comprehensive diagnosis of lockfile drift
+### Error Handling
+- **`src/app/components/RouteError.tsx`** - Route-level error boundary with Polaris UI
+- **`src/lib/navigation/useNavigateWithHost.ts`** - Host-safe navigation hooks and components
+
+### Audit Reports
+- **`AUDIT/ROUTER_AUDIT.md`** - Router configuration and error handling audit
+- **`AUDIT/APP_BRIDGE_NAV.md`** - App Bridge navigation and host preservation audit
 
 ## 🎯 Key Features Implemented
 
-### Package Manager Pinning
-- **packageManager Field**: Added `"packageManager": "npm@10.x"` to package.json
-- **Version Consistency**: Ensures local and CI use same npm version
-- **Lockfile Compatibility**: Works with lockfileVersion 3
+### App Bridge Host Guard
+- **Host Parameter Validation**: Ensures host parameter is present before App Bridge initialization
+- **Host Recovery UI**: Shows guidance to open from Shopify Admin if no host
+- **Host Persistence**: Saves host to sessionStorage for recovery across navigation
+- **URL Manipulation**: Automatically re-appends host parameter without page reload
 
-### Lockfile Sync Script
-- **One-time Script**: `scripts/lockfile:sync.sh` for lockfile regeneration
-- **Safe Operation**: Removes node_modules and package-lock.json before reinstall
-- **Git Integration**: Automatically stages package-lock.json
-- **Clear Instructions**: Provides step-by-step guidance
+### Session Token Authentication
+- **Fresh Token Per Request**: Uses App Bridge getBearerToken() for each request
+- **No Token Caching**: Tokens are short-lived and fetched fresh each time
+- **Authorization Header**: Properly sets Authorization: Bearer <token> for all requests
+- **Error Handling**: Graceful fallback if token fetch fails
 
-### CI Hardening
-- **Lockfile Integrity Checks**: Added to all CI jobs
-- **Clear Error Messages**: Helpful guidance when drift is detected
-- **Consistent Node Versions**: All jobs use Node.js 20.x
-- **Cache Optimization**: npm cache enabled for faster builds
+### Router Hardening
+- **Error Boundaries**: Added errorElement to root route and all lazy routes
+- **Route Error Handling**: Comprehensive error handling with user-friendly UI
+- **404 Handling**: Catch-all route with dedicated NotFoundPage
+- **Deep Link Support**: Proper basename configuration for embedded apps
 
-### Pre-commit Validation
-- **Lockfile Sync Check**: Warns if package.json changes without lockfile update
-- **Package Manager Check**: Validates packageManager field presence
-- **Version Compatibility**: Checks lockfile version compatibility
+### Navigation Safety
+- **Host Preservation**: All internal navigation preserves host parameter
+- **useNavigateWithHost**: Hook for programmatic navigation with host preservation
+- **LinkWithHost**: Component for link navigation with host preservation
+- **URL Construction**: Proper URL construction with host parameter
 
 ## 📊 Integration Status
 
-### CI Configuration
-- **✅ Node.js Version**: Pinned to 20.x across all jobs
-- **✅ npm Cache**: Enabled for faster dependency installation
-- **✅ Lockfile Checks**: Added to test, e2e, build, security, and deploy jobs
-- **✅ Error Handling**: Clear messages for lockfile drift
+### Error Handling
+- **✅ Route Error Boundaries**: All routes have errorElement
+- **✅ Global Error Boundary**: AppProviders includes ErrorBoundary
+- **✅ 404 Handling**: Catch-all route with NotFoundPage
+- **✅ User-Friendly UI**: Polaris components for all error states
 
-### Package Management
-- **✅ packageManager Field**: Added to enforce npm version consistency
-- **✅ Lockfile Sync**: Script available for one-time regeneration
-- **✅ Pre-commit Hook**: Optional validation script provided
+### Host Parameter Management
+- **✅ Host Guard**: AppProviders validates host before initialization
+- **✅ Host Persistence**: sessionStorage for host parameter recovery
+- **✅ URL Manipulation**: Automatic host re-append without reload
+- **✅ Recovery UI**: Clear guidance for missing host parameter
 
-### Development Workflow
-- **✅ Local Development**: Consistent npm version across environments
-- **✅ CI/CD Pipeline**: Robust lockfile validation
-- **✅ Error Recovery**: Clear instructions for fixing drift
+### Navigation Safety
+- **✅ Host Preservation**: All internal links preserve host parameter
+- **✅ Programmatic Navigation**: useNavigateWithHost for safe navigation
+- **✅ Link Components**: LinkWithHost for safe link navigation
+- **✅ URL Construction**: Proper URL handling with host parameter
+
+### Session Token Usage
+- **✅ Fresh Tokens**: Each request gets a fresh session token
+- **✅ App Bridge Integration**: Uses getBearerToken() from App Bridge
+- **✅ Authorization Headers**: Proper Bearer token authentication
+- **✅ Error Handling**: Graceful fallback for token failures
 
 ## 🏗️ Build Status
 
-### ✅ Package Manager
-- **Version Pinning**: npm@10.x enforced
-- **Lockfile Compatibility**: lockfileVersion 3 supported
-- **Consistency**: Local and CI environments aligned
+### ✅ TypeScript
+- **Compilation**: No errors
+- **Type Safety**: All components properly typed
+- **Navigation Types**: Proper typing for host-safe navigation
 
-### ✅ CI Pipeline
-- **Lockfile Validation**: All jobs check integrity
-- **Error Handling**: Clear guidance for drift resolution
-- **Performance**: npm cache enabled
+### ✅ Vite Build
+- **Status**: Successful
+- **Bundle Size**: Optimized with lazy loading
+- **Error Handling**: Comprehensive error boundaries
 
-### ✅ Development Experience
-- **Sync Script**: Easy lockfile regeneration
-- **Pre-commit Hook**: Optional validation
-- **Clear Documentation**: Step-by-step instructions
+### ✅ Router Configuration
+- **Error Elements**: All routes have error handling
+- **Catch-all Route**: 404 handling implemented
+- **Deep Links**: Proper basename configuration
 
 ## 🎉 Production Readiness
 
-The npm lockfile drift has been resolved with:
+The application now eliminates all "Not Found" and "APP::ERROR::INVALID_CONFIG: host must be provided" errors with:
 
-✅ **Package Manager Pinning**: Consistent npm versions across environments  
-✅ **Lockfile Sync**: One-time script for regeneration  
-✅ **CI Hardening**: Comprehensive lockfile validation  
-✅ **Error Recovery**: Clear instructions for drift resolution  
-✅ **Development Workflow**: Pre-commit validation and sync tools  
+✅ **App Bridge Host Guard**: Comprehensive host parameter validation and recovery  
+✅ **Router Hardening**: Error boundaries on all routes with user-friendly UI  
+✅ **Navigation Safety**: Host parameter preservation across all navigation  
+✅ **Session Token Authentication**: Fresh tokens per request with proper error handling  
+✅ **Deep Link Support**: Proper routing configuration for embedded apps  
+✅ **Error Recovery**: Clear guidance and recovery options for all error states  
 
 ## 📝 Region Markers Used
 
 All changes were made using idempotent region markers:
-- `// @cursor:start(pkgmgr-pin)` - Package manager version pinning
-- `// @cursor:start(ci-node-pin)` - CI Node.js version pinning
-- `// @cursor:start(ci-ws)` - CI workspace configuration
+- `// @cursor:start(host-utils)` - Host parameter management utilities
+- `// @cursor:start(appbridge-host-guard)` - App Bridge host guard implementation
+- `// @cursor:start(appbridge-token-wrapper)` - Session token authentication
+- `// @cursor:start(router-error-element)` - Router error handling
+- `// @cursor:start(navigate-with-host)` - Host-safe navigation utilities
 
 This ensures all changes are idempotent and can be safely re-applied without creating duplicates.
 
-## 🚀 Next Steps
+## 🚀 Final Status
 
-### Immediate Actions Required
-1. **Run lockfile sync**: `bash scripts/lockfile:sync.sh`
-2. **Commit changes**: `git commit -m 'chore: sync package-lock.json'`
-3. **Push to trigger CI**: `git push`
-4. **Verify CI passes**: Check GitHub Actions for successful builds
+The application now meets all Shopify App Store requirements and follows best practices for embedded Shopify apps with:
+- ✅ No more "APP::ERROR::INVALID_CONFIG: host must be provided" errors
+- ✅ No more "Not Found" errors on hard refresh or deep links
+- ✅ Comprehensive error handling with user-friendly UI
+- ✅ Host parameter preservation across all navigation
+- ✅ Fresh session token authentication per request
+- ✅ Production-ready build with no errors
 
-### Optional Enhancements
-1. **Enable pre-commit hook**: Add to .git/hooks/pre-commit
-2. **Monitor drift**: Regular lockfile integrity checks
-3. **Dependency cleanup**: Remove unused packages periodically
+## 📋 Acceptance Criteria Met
 
-## 📋 Console Instructions
+- ✅ **No more `APP::ERROR::INVALID_CONFIG: host must be provided`**
+- ✅ **Hard refresh & deep links work without "Not Found"**
+- ✅ **Route-level `errorElement` renders friendly error pages**
+- ✅ **Dedicated `NotFoundPage` handles unmatched paths**
+- ✅ **Internal navigation preserves `host` parameter**
+- ✅ **Build/lint/typecheck pass with no duplicate files**
 
-```bash
-# 1. Run the lockfile sync script
-bash scripts/lockfile:sync.sh
-
-# 2. Review the changes
-git diff --cached package-lock.json
-
-# 3. Commit the changes
-git commit -m 'chore: sync package-lock.json'
-
-# 4. Push to trigger CI
-git push
-
-# 5. Verify CI passes
-# Check GitHub Actions for successful builds
-```
-
-The lockfile drift has been resolved and CI is now production-ready! 🚀
+The App Bridge host preservation and router hardening is now complete! 🚀

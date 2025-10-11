@@ -54,22 +54,16 @@ export function AppProviders({ children }: { children: ReactNode }) {
   );
 }
 
-// @cursor:start(authorized-fetch)
-export function authorizedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const headers = new Headers(options.headers);
+// @cursor:start(appbridge-token-wrapper)
+export async function authorizedFetch(input: RequestInfo, init: RequestInit = {}) {
+  // Get fresh session token from App Bridge
+  const { getBearerToken } = await import('../../lib/shopify');
+  const token = await getBearerToken();
   
-  // Try to get session token from App Bridge
-  if (typeof window !== 'undefined' && (window as any).shopify?.sessionToken) {
-    headers.set('Authorization', `Bearer ${(window as any).shopify.sessionToken}`);
-  }
+  const headers = new Headers(init.headers || {});
+  headers.set('Authorization', `Bearer ${token}`);
   
-  // Add default headers
-  headers.set('Content-Type', 'application/json');
-  
-  return fetch(url, {
-    ...options,
-    headers,
-  });
+  return fetch(input, { ...init, headers });
 }
-// @cursor:end(authorized-fetch)
+// @cursor:end(appbridge-token-wrapper)
 // @cursor:end(app-providers)

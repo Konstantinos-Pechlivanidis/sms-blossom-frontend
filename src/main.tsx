@@ -5,6 +5,7 @@ import '@shopify/polaris/build/esm/styles.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { validateEnvironment, getEnvironmentInfo } from './config/env';
 import { AppProviders } from './app/providers/AppProviders';
+import { RouteError } from './app/components/RouteError';
 import './styles/globals.css';
 import App from './ui/App';
 import Dashboard from './ui/pages/Dashboard';
@@ -46,10 +47,12 @@ try {
   console.warn('Environment validation error:', error);
 }
 
+// @cursor:start(router-error-element)
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+    errorElement: <RouteError />,
     children: [
       { path: '/', element: <Dashboard /> },
       { path: '/contacts', element: <Contacts /> },
@@ -62,7 +65,8 @@ const router = createBrowserRouter([
           <Suspense fallback={<RouteLoader />}>
             <Campaigns />
           </Suspense>
-        )
+        ),
+        errorElement: <RouteError />
       },
       { 
         path: '/campaigns/:id', 
@@ -70,7 +74,8 @@ const router = createBrowserRouter([
           <Suspense fallback={<RouteLoader />}>
             <CampaignDetail />
           </Suspense>
-        )
+        ),
+        errorElement: <RouteError />
       },
       { 
         path: '/automations', 
@@ -78,7 +83,8 @@ const router = createBrowserRouter([
           <Suspense fallback={<RouteLoader />}>
             <AutomationsPage />
           </Suspense>
-        )
+        ),
+        errorElement: <RouteError />
       },
       { 
         path: '/reports', 
@@ -86,7 +92,8 @@ const router = createBrowserRouter([
           <Suspense fallback={<RouteLoader />}>
             <Reports />
           </Suspense>
-        )
+        ),
+        errorElement: <RouteError />
       },
       { path: '/settings', element: <Settings /> },
       { path: '*', element: <NotFoundPage /> },
@@ -95,6 +102,7 @@ const router = createBrowserRouter([
 ], {
   basename: import.meta.env.VITE_BASE_PATH || undefined,
 });
+// @cursor:end(router-error-element)
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

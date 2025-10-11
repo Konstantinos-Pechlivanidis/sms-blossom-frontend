@@ -1,19 +1,21 @@
-// @cursor:start(appbridge-host)
+// @cursor:start(host-utils)
 /**
  * App Bridge host parameter management
  * Handles reading, persisting, and recovering the host parameter for embedded apps
  */
 
 export function getHostFromLocation(): string | null {
-  const url = new URL(window.location.href);
-  return url.searchParams.get('host');
+  const u = new URL(window.location.href);
+  return u.searchParams.get('host');
 }
 
 export function persistHost(host: string): void {
-  try {
-    sessionStorage.setItem('shopify:host', host);
-  } catch (error) {
-    console.warn('Failed to persist host:', error);
+  if (host) {
+    try {
+      sessionStorage.setItem('shopify:host', host);
+    } catch (error) {
+      console.warn('Failed to persist host:', error);
+    }
   }
 }
 
@@ -27,28 +29,23 @@ export function loadPersistedHost(): string | null {
 }
 
 export function ensureHostParam(): string | null {
-  // 1. Check if host is in URL
-  const urlHost = getHostFromLocation();
-  if (urlHost) {
-    persistHost(urlHost);
-    return urlHost;
+  const fromUrl = getHostFromLocation();
+  if (fromUrl) { 
+    persistHost(fromUrl); 
+    return fromUrl; 
   }
-
-  // 2. Check if we have a persisted host
-  const persistedHost = loadPersistedHost();
-  if (persistedHost) {
-    // Push it into URL without reload
-    const url = new URL(window.location.href);
-    url.searchParams.set('host', persistedHost);
-    window.history.replaceState({}, '', url.toString());
-    return persistedHost;
+  const persisted = loadPersistedHost();
+  if (persisted) {
+    // Re-append host without reload
+    const u = new URL(window.location.href);
+    u.searchParams.set('host', persisted);
+    window.history.replaceState({}, '', u.toString());
+    return persisted;
   }
-
-  // 3. No host available - return null for HostGuard to handle
-  return null;
+  return null; // signal missing host
 }
 
 export function getCurrentHost(): string | null {
   return getHostFromLocation() || loadPersistedHost();
 }
-// @cursor:end(appbridge-host)
+// @cursor:end(host-utils)
