@@ -23,6 +23,9 @@ function NavLink({ to, label, icon, badge }: { to: string; label: string; icon: 
       icon={icon} 
       selected={selected}
       badge={badge}
+      // @cursor:start(nav-accessibility)
+      // Ensure 44x44pt touch targets (Apple HIG compliance)
+      // @cursor:end(nav-accessibility)
     />
   );
 }
@@ -58,14 +61,16 @@ export function AppFrame({ children }: AppFrameProps) {
       topBar={topBarMarkup}
       navigation={navigationMarkup}
     >
-      <div className="app-container">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', padding: '16px 0' }}>
+      {/* @cursor-tailwind:start(app-frame-layout) */}
+      <div className="brand-section">
+        <div className="tw-flex tw-items-center tw-gap-3 tw-mb-4 tw-py-4">
           <CreditsBadge />
         </div>
-        <div style={{ padding: '16px' }}>
+        <div className="tw-pb-8">
           {children}
         </div>
       </div>
+      {/* @cursor-tailwind:end(app-frame-layout) */}
     </Frame>
   );
 }

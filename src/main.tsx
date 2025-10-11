@@ -1,9 +1,11 @@
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Spinner, Page } from '@shopify/polaris';
+import '@shopify/polaris/build/esm/styles.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { validateEnvironment, getEnvironmentInfo } from './config/env';
 import { AppProviders } from './app/providers/AppProviders';
+import './styles/globals.css';
 import App from './ui/App';
 import Dashboard from './ui/pages/Dashboard';
 import Contacts from './ui/pages/Contacts';

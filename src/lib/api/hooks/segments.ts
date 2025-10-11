@@ -57,4 +57,25 @@ export function usePreviewSegment() {
     },
   });
 }
+
+// @cursor-doc:start(admin-sync)
+export function useAdminSyncCustomers() {
+  const { shop } = useShop();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!shop) throw new Error('Shop not available');
+      // Mock implementation - will be replaced with actual API call
+      return { success: true, synced: 0 };
+    },
+    onSuccess: () => {
+      if (shop) {
+        queryClient.invalidateQueries({ queryKey: ['contacts', shop] as const });
+        queryClient.invalidateQueries({ queryKey: segmentsKeys.lists() });
+      }
+    },
+  });
+}
+// @cursor-doc:end(admin-sync)
 // @cursor:end(segments-hooks)

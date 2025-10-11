@@ -1,0 +1,224 @@
+/* Brand Utility Classes - Polaris-safe layering */
+/* @cursor-clean:start(brand-layers) */
+
+@layer components {
+  /* Hero Section - Teal gradient wrapper */
+  .brand-hero {
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
+  }
+  
+  /* Section Container - Consistent gutters and vertical rhythm */
+  .brand-section {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 1rem 1rem 1.5rem;
+  }
+  
+  @media (min-width: 640px) {
+    .brand-section {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .brand-section {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+  
+  /* Card Wrapper - Subtle outer padding around Polaris Cards */
+  .brand-card {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Responsive Grid Helpers */
+  .brand-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  
+  .brand-grid-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .brand-grid-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 768px) {
+    .brand-grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  .brand-grid-3 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 768px) {
+    .brand-grid-3 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .brand-grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  .brand-grid-4 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  @media (min-width: 768px) {
+    .brand-grid-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .brand-grid-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  
+  /* Vertical Spacing Utility */
+  .brand-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .brand-stack-sm {
+    gap: 0.5rem;
+  }
+  
+  .brand-stack-lg {
+    gap: 1.5rem;
+  }
+  
+  .brand-stack-xl {
+    gap: 2rem;
+  }
+  
+  /* KPI Card Styling */
+  .brand-kpi {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition: all 0.2s;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .brand-kpi:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Status Badges */
+  .brand-status-success {
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .brand-status-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .brand-status-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .brand-status-info {
+    background-color: #dbeafe;
+    color: #1e40af;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  /* Form Layout Helpers */
+  .brand-form-section {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+  }
+  
+  .brand-form-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  
+  @media (min-width: 768px) {
+    .brand-form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  
+  /* Table Enhancements */
+  .brand-table-container {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+  
+  /* Loading States */
+  .brand-skeleton {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background-color: #e5e7eb;
+    border-radius: 0.25rem;
+  }
+  
+  /* Responsive Utilities */
+  .brand-responsive-padding {
+    padding: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .brand-responsive-padding {
+      padding: 1.5rem;
+    }
+  }
+  
+  .brand-responsive-margin {
+    margin: 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .brand-responsive-margin {
+      margin: 1.5rem;
+    }
+  }
+}
+
+/* @cursor-clean:end(brand-layers) */
+

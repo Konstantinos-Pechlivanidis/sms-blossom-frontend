@@ -1,45 +1,56 @@
-import React, { ReactNode } from 'react';
-import { AppProvider as PolarisProvider } from '@shopify/polaris';
-import '@shopify/polaris/build/esm/styles.css';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ErrorBoundary } from '../components/ErrorBoundary';
 import { PolarisThemeProvider } from '../../ui/PolarisThemeProvider';
-import { env } from '../../config/env';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactNode, useMemo } from 'react';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { ensureHostParam } from '../../lib/shopify/host';
+import { Banner, Page } from '@shopify/polaris';
 
 // @cursor:start(app-providers)
-interface AppProvidersProps {
-  children: ReactNode;
-}
-
-// Create a new QueryClient instance with optimized settings
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      gcTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 30 * 1000, // 30 seconds
+export function AppProviders({ children }: { children: ReactNode }) {
+  const qc = useMemo(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        gcTime: 5 * 60 * 1000, // 5 minutes
+        retry: 1,
+        refetchOnWindowFocus: false,
+        staleTime: 30 * 1000, // 30 seconds
+      },
+      mutations: {
+        retry: 0,
+      },
     },
-    mutations: {
-      retry: 0,
-    },
-  },
-});
+  }), []);
 
-// App Bridge is handled by Shopify CLI, no need for React provider
-export function AppProviders({ children }: AppProvidersProps) {
-  return (
-    <PolarisProvider 
-      i18n={{}}
-    >
+  // Ensure host parameter is present for App Bridge
+  const host = ensureHostParam();
+  
+  // If no host, show recovery UI
+  if (!host) {
+    return (
       <PolarisThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-        </QueryClientProvider>
+        <Page>
+          <Banner
+            tone="critical"
+            title="App must be opened from Shopify Admin"
+          >
+            <p>
+              This app must be accessed through the Shopify Admin interface. 
+              Please go to your Shopify Admin → Apps → SMS Blossom to use this application.
+            </p>
+          </Banner>
+        </Page>
       </PolarisThemeProvider>
-    </PolarisProvider>
+    );
+  }
+  
+  return (
+    <PolarisThemeProvider>
+      <QueryClientProvider client={qc}>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+      </QueryClientProvider>
+    </PolarisThemeProvider>
   );
 }
 

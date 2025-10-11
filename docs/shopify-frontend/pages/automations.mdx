@@ -1,0 +1,41 @@
+# Automations Page Contract
+
+## Purpose
+The Automations page provides a rules-based interface for configuring SMS marketing automations. It allows merchants to set up triggered campaigns based on customer behavior and events.
+
+## Components Used
+- `PageHeader` - Main page header with help integration
+- `SectionCard` - Grouped sections for different automation types
+- `FormRow` - Consistent form field layout
+- `ExplainableButton` - Action buttons with contextual help
+- `useSaveBar` - App Bridge Save Bar for dirty form state
+
+## Queries/Mutations Used
+- `useAutomations()` - Fetch automation configurations
+- `useUpdateAutomation()` - Update automation settings
+- `useAutomationMetrics()` - Fetch automation performance metrics
+
+## Save Bar Behavior
+- Shows when any automation field is modified
+- Save action updates the automation configuration
+- Discard action resets to last saved state
+- Loading state during save operations
+
+## Error States
+- Critical banners for webhook health issues
+- Inline errors for invalid field values
+- Loading skeletons during data fetch
+- Empty states for first-time setup
+
+## Primary Actions
+- Enable/Disable automations
+- Configure triggers (abandoned checkout, welcome, winback, post-purchase)
+- Set timing delays and quiet hours
+- Select message templates
+- View automation metrics
+
+## Backend Endpoints
+- `GET /automations` - Fetch automation configurations
+- `PUT /automations/{id}` - Update automation settings
+- `GET /automations/metrics` - Fetch performance data
+- `POST /automations/{id}/test` - Test automation trigger

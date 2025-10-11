@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { TopBar, Icon, Badge, Popover, ActionList, Text } from '@shopify/polaris';
 import { NotificationIcon } from '@shopify/polaris-icons';
 
@@ -29,6 +29,13 @@ export function NotificationsBell() {
       read: true,
     },
   ]);
+
+  // TODO: Check for custom SVG icons with non-20×20 viewBox
+  useEffect(() => {
+    if (typeof window !== 'undefined' && import.meta.env.DEV) {
+      console.warn('TODO: Check custom SVG icons for 20×20 viewBox compliance');
+    }
+  }, []);
 
   const toggleNotifications = useCallback(() => setIsNotificationsOpen((isOpen) => !isOpen), []);
   const closeNotifications = useCallback(() => setIsNotificationsOpen(false), []);

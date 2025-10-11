@@ -1,0 +1,40 @@
+/* Tailwind CSS + Polaris Integration */
+/* @cursor-tailwind:start(globals) */
+
+/* Import design tokens and brand utilities first */
+@import '../ui/tokens.css';
+@import '../ui/brand.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Polaris-safe global styles */
+/* Ensure Polaris styles take precedence */
+.Polaris-* {
+  /* Polaris components should not be overridden */
+}
+
+/* @cursor:start(gradient-hero) */
+/* Brand gradient hero utility class */
+.gradientHero {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.gradientHero h1,
+.gradientHero h2,
+.gradientHero h3,
+.gradientHero p {
+  color: white;
+}
+
+.gradientHero .Polaris-Text {
+  color: white;
+}
+/* @cursor:end(gradient-hero) */
+
+/* @cursor-tailwind:end(globals) */

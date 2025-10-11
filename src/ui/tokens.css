@@ -1,0 +1,64 @@
+/* Design Token Bridge - Polaris-safe CSS variables */
+/* @cursor-tailwind:start(tokens) */
+
+:root {
+  /* Brand Colors - Teal Family */
+  --brand-primary: #20B2AA;
+  --brand-secondary: #17A2B8;
+  --brand-accent: #00CED1;
+  --brand-surface: #F8F9FA;
+  --brand-muted: #E9ECEF;
+  
+  /* Polaris-compatible Colors */
+  --polaris-surface: #FFFFFF;
+  --polaris-surface-subdued: #F6F6F7;
+  --polaris-border: #E1E3E5;
+  --polaris-text: #202223;
+  --polaris-text-subdued: #6D7175;
+  
+  /* Spacing Scale */
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  --space-3xl: 4rem;     /* 64px */
+  
+  /* Typography Scale */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.5rem;   /* 8px */
+  --radius-lg: 0.75rem;  /* 12px */
+  --radius-xl: 1rem;     /* 16px */
+  --radius-2xl: 1.5rem;  /* 24px */
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-brand: 0 4px 6px -1px rgba(32, 178, 170, 0.1), 0 2px 4px -1px rgba(32, 178, 170, 0.06);
+}
+
+/* Dark mode tokens (future-proof) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand-surface: #1A1A1A;
+    --brand-muted: #2D2D2D;
+    --polaris-surface: #1A1A1A;
+    --polaris-surface-subdued: #2D2D2D;
+    --polaris-border: #404040;
+    --polaris-text: #FFFFFF;
+    --polaris-text-subdued: #B0B0B0;
+  }
+}
+
+/* @cursor-tailwind:end(tokens) */

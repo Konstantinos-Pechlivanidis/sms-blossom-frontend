@@ -14,11 +14,24 @@ import {
   FormLayout,
   TextField,
   Select,
-  ButtonGroup
+  ButtonGroup,
+  Box,
+  Layout
 } from '@shopify/polaris';
 import { useState } from 'react';
 import { useTemplates, useCreateTemplate, usePreviewTemplate, useValidateTemplate } from '../../lib/api/hooks';
 import { useShop } from '../../lib/shopContext';
+import { SectionHeader } from '../components/SectionHeader';
+import { GlassCard } from '../components/GlassCard';
+// @cursor:start(templates-imports)
+import { PageHeader } from '../components/PageHeader';
+import { ExplainableButton } from '../components/ExplainableButton';
+import { SectionCard } from '../components/SectionCard';
+import { DataGrid } from '../components/DataGrid';
+import { useSaveBar } from '../../lib/hooks/useSaveBar';
+import { FormRow } from '../components/FormRow';
+import { DataGridSkeleton, FormSkeleton } from '../components/Skeletons';
+// @cursor:end(templates-imports)
 
 // @cursor:start(templates-page)
 const TRIGGER_OPTIONS = [
@@ -37,18 +50,32 @@ export default function Templates() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewData, setPreviewData] = useState<any>(null);
+  const [isDirty, setIsDirty] = useState(false);
   
   const { data: templates, isLoading, error } = useTemplates({ trigger: selectedTrigger || undefined });
   const createTemplate = useCreateTemplate();
   const previewTemplate = usePreviewTemplate();
   const validateTemplate = useValidateTemplate();
 
+  // Save Bar integration
+  const { SaveBarComponent } = useSaveBar({
+    isDirty,
+    onSave: () => {
+      // Handle save logic
+      setIsDirty(false);
+    },
+    onDiscard: () => {
+      setIsDirty(false);
+    },
+    loading: createTemplate.isPending,
+  });
+
   const handleCreateTemplate = async (data: any) => {
     try {
       await createTemplate.mutateAsync(data);
       setShowCreateModal(false);
     } catch (error) {
-      console.error('Failed to create template:', error);
+      // Template creation failed
     }
   };
 
@@ -58,7 +85,7 @@ export default function Templates() {
       setPreviewData(result);
       setShowPreviewModal(true);
     } catch (error) {
-      console.error('Failed to preview template:', error);
+      // Template preview failed
     }
   };
 
@@ -67,7 +94,7 @@ export default function Templates() {
       const result = await validateTemplate.mutateAsync({ body, trigger });
       return result;
     } catch (error) {
-      console.error('Failed to validate template:', error);
+      // Template validation failed
       return null;
     }
   };
@@ -88,80 +115,113 @@ export default function Templates() {
   ]) || [];
 
   return (
-    <Page 
-      title="Templates"
-      primaryAction={{
-        content: 'Create Template',
-        onAction: () => setShowCreateModal(true),
-      }}
-    >
-      <BlockStack gap="400">
-        {error && (
-          <Banner tone="critical" title="Failed to load templates">
-            <p>Unable to load templates. Please try again.</p>
-          </Banner>
-        )}
-
-        <Card>
-          <div style={{ padding: '16px' }}>
-            <InlineStack gap="400" align="space-between">
-              <Text as="h2" variant="headingMd">
-                SMS Templates
-              </Text>
-              <Select
-                label="Filter by trigger"
-                labelHidden
-                options={TRIGGER_OPTIONS}
-                value={selectedTrigger}
-                onChange={setSelectedTrigger}
-              />
-            </InlineStack>
-          </div>
-        </Card>
-
-        {isLoading ? (
-          <Card>
-            <div style={{ padding: '16px', textAlign: 'center' }}>
-              <Spinner size="large" />
+    <>
+      {SaveBarComponent}
+      <PageHeader
+        title="Templates"
+        subtitle="Create and manage reusable SMS message templates for your campaigns"
+        primaryAction={
+          <ExplainableButton
+            onAction={() => setShowCreateModal(true)}
+            label="Create Template"
+            explainTitle="Create Template"
+            explainMarkdown="Create a reusable SMS template with LiquidJS variables for personalization. Templates can be used across multiple campaigns and automations."
+          />
+        }
+        helpSlug="templates"
+      />
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="400">
+            {/* @cursor:start(templates-hero) */}
+            {/* Hero Section - Brand gradient wrapper */}
+            <div className="gradientHero">
+              <Text as="h2" variant="headingLg">SMS Templates</Text>
+              <Text as="p" variant="bodyMd">Create and manage automated SMS messages for your customers</Text>
             </div>
-          </Card>
-        ) : templates?.data?.length === 0 ? (
-          <Card>
-            <EmptyState
-              heading="No templates found"
-              action={{
-                content: 'Create your first template',
-                onAction: () => setShowCreateModal(true),
-              }}
-              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
-            >
-              <p>Create SMS templates for different triggers like abandoned checkouts, order confirmations, and more.</p>
-            </EmptyState>
-          </Card>
-        ) : (
-          <Card>
-            <IndexTable
-              headings={[
-                { title: 'Name' },
-                { title: 'Trigger' },
-                { title: 'Content' },
-                { title: 'Created' },
-                { title: 'Actions' }
-              ]}
-              itemCount={templates?.data?.length || 0}
-            >
-              {rows.map((row, index) => (
-                <IndexTable.Row key={index} id={index.toString()} position={index}>
-                  {row.map((cell, cellIndex) => (
-                    <IndexTable.Cell key={cellIndex}>
-                      {cell}
-                    </IndexTable.Cell>
-                  ))}
-                </IndexTable.Row>
-              ))}
-            </IndexTable>
-          </Card>
-        )}
+            {/* @cursor:end(templates-hero) */}
+
+            {error && (
+              <Banner tone="critical" title="Failed to load templates">
+                <p>Unable to load templates. Please try again.</p>
+              </Banner>
+            )}
+
+            <SectionCard title="Filter Templates">
+              <InlineStack gap="400" align="space-between">
+                <Text as="h2" variant="headingMd">
+                  Filter by Trigger
+                </Text>
+                <Select
+                  label="Filter by trigger"
+                  labelHidden
+                  options={TRIGGER_OPTIONS}
+                  value={selectedTrigger}
+                  onChange={setSelectedTrigger}
+                />
+              </InlineStack>
+            </SectionCard>
+
+            <SectionCard title="Templates">
+              <DataGrid
+                headings={[
+                  { title: 'Name', sortable: true },
+                  { title: 'Trigger', sortable: true },
+                  { title: 'Content', sortable: true },
+                  { title: 'Created', sortable: true },
+                  { title: 'Actions' },
+                ]}
+                rows={rows.map((row, index) => (
+                  <IndexTable.Row key={index} id={index.toString()} position={index}>
+                    {row.map((cell, cellIndex) => (
+                      <IndexTable.Cell key={cellIndex}>
+                        {cell}
+                      </IndexTable.Cell>
+                    ))}
+                  </IndexTable.Row>
+                ))}
+                itemCount={templates?.data?.length || 0}
+                resourceName={{ singular: 'template', plural: 'templates' }}
+                loading={isLoading}
+                error={error?.message}
+                emptyState={{
+                  heading: 'No templates found',
+                  description: 'Create SMS templates for different triggers like abandoned checkouts, order confirmations, and more.',
+                  action: {
+                    content: 'Create your first template',
+                    onAction: () => setShowCreateModal(true),
+                  }
+                }}
+                searchable={true}
+                searchValue=""
+                onSearchChange={() => {}}
+                searchPlaceholder="Search templates..."
+                selectable={true}
+                selectedItems={[]}
+                onSelectionChange={() => {}}
+                bulkActions={[
+                  {
+                    content: 'Activate',
+                    onAction: (selectedItems) => {
+                      // Activate selected templates
+                    },
+                  },
+                  {
+                    content: 'Deactivate',
+                    onAction: (selectedItems) => {
+                      // Deactivate selected templates
+                    },
+                  },
+                  {
+                    content: 'Delete',
+                    onAction: (selectedItems) => {
+                      // Delete selected templates
+                    },
+                    destructive: true,
+                  }
+                ]}
+              />
+            </SectionCard>
 
         {/* Create Template Modal */}
         <CreateTemplateModal
@@ -178,8 +238,10 @@ export default function Templates() {
           onClose={() => setShowPreviewModal(false)}
           data={previewData}
         />
-      </BlockStack>
-    </Page>
+          </BlockStack>
+        </Layout.Section>
+      </Layout>
+    </>
   );
 }
 

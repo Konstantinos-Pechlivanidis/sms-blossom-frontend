@@ -1,105 +1,98 @@
-# Campaigns Page
+# Campaigns Page Contract
 
 ## Purpose
-Create, manage, and monitor SMS marketing campaigns with advanced targeting and scheduling capabilities.
+The Campaigns page provides a professional campaign creation wizard with live SMS preview, campaign management, and audience targeting capabilities.
 
-## State Chart
-```
-Loading → Campaigns List → Create Wizard → Campaign Detail
-    ↓           ↓              ↓              ↓
-  Skeleton   Campaign      Step 1: Basic   Overview
-    ↓           ↓              ↓              ↓
-  Error      Actions      Step 2: Target   Performance
-  Banner     (Edit/       Step 3: Content  Metrics
-             Delete)      Step 4: Schedule
-                          Step 5: Review
-```
+## Key Components Used
+- **PageHeader**: Standard page header with help system
+- **IPhoneSmsPreview**: Live SMS preview with character/segment counting
+- **ActionWithHelp**: Primary action with help tooltip
+- **FormScaffold**: Professional form wrapper with validation
+- **HelpDialog**: Contextual help for campaign creation
 
-## Polaris Components Used
-- `Page` - Main page container
-- `Card` - Content sections
-- `IndexTable` - Campaign list
-- `Modal` - Campaign creation wizard
-- `FormLayout` - Multi-step form structure
-- `TextField` - Campaign name and content
-- `Select` - Segment and template selection
-- `DatePicker` - Schedule selection
-- `ButtonGroup` - Action buttons
-- `Banner` - Status messages
-- `ProgressBar` - Campaign sending progress
+## Data Dependencies
+- **Query Keys**: `['campaigns', shop]`, `['segments', shop]`
+- **Hooks**: `useQuery` for campaigns and segments
+- **Mutations**: `useMutation` for campaign creation
 
 ## Backend Endpoints
-
 | Method | Path | Purpose |
 |--------|------|---------|
-| GET | `/campaigns` | List campaigns with pagination and filters |
-| POST | `/campaigns` | Create new campaign |
-| GET | `/campaigns/{id}` | Get campaign details |
-| PUT | `/campaigns/{id}` | Update campaign |
-| DELETE | `/campaigns/{id}` | Delete campaign |
-| POST | `/campaigns/{id}/estimate` | Estimate recipients and cost |
-| POST | `/campaigns/{id}/test` | Send test SMS |
-| POST | `/campaigns/{id}/send` | Start campaign sending |
-| POST | `/campaigns/{id}/prepare` | Prepare campaign (assign codes, build links) |
+| `GET` | `/campaigns` | List all campaigns |
+| `POST` | `/campaigns` | Create new campaign |
+| `GET` | `/segments` | List available segments |
+| `POST` | `/campaigns/estimate` | Estimate campaign cost |
 
-## Shopify Admin API Reference Operations
-- **Customer Segments**: Used for campaign targeting
-- **Discount Codes**: Integrated with campaign discount assignment
-- **Orders**: For order-based campaign triggers
+## User Actions
+| Action | This button does... | Backend Operation |
+|--------|-------------------|-------------------|
+| **Create Campaign** | Opens campaign creation wizard | N/A (frontend modal) |
+| **Add first_name** | Inserts personalization variable | N/A (frontend state) |
+| **Add discount_code** | Inserts discount variable | N/A (frontend state) |
+| **Create Campaign (Wizard)** | Creates campaign with form data | `POST /campaigns` |
+| **Reset** | Clears form and resets state | N/A (frontend state) |
+| **Open Campaign** | Navigates to campaign details | N/A (frontend navigation) |
+| **Help** | Opens contextual help dialog | N/A (frontend modal) |
 
-## User Actions & Validation Rules
+## Campaign Creation Wizard Steps
 
-### Create Campaign
-- **Action**: User clicks "Create Campaign" button
-- **Validation**:
-  - Name: Required, max 255 characters
-  - Template: Required, valid template ID or content
-  - Segment: Required, valid segment ID
-  - Schedule: Optional, future date/time
-- **Effect**: Campaign created and added to list
+### Step 1: Audience
+- **Campaign Name**: Text input with placeholder
+- **Target Segment**: Dropdown with customer counts
+- **Segment Info**: Shows targeting details when selected
 
-### Estimate Campaign
-- **Action**: User clicks "Estimate" button
-- **Validation**: Campaign must have valid segment and template
-- **Effect**: Shows estimated recipients, cost, and warnings
+### Step 2: Message
+- **SMS Message**: Multiline text input with personalization help
+- **Variable Buttons**: Quick insert for common variables
+- **Live Preview**: Real-time iPhone-style SMS preview
+- **Character Counter**: GSM/Unicode detection and segment counting
 
-### Test Send
-- **Action**: User clicks "Test Send" button
-- **Validation**: Valid phone number in E.164 format
-- **Effect**: Sends test SMS to specified number
+### Step 3: Schedule
+- **Schedule At**: Optional datetime picker
+- **Batch Size**: Number input for message batching
+- **Help Text**: Guidance for each field
 
-### Send Campaign
-- **Action**: User clicks "Send" button
-- **Validation**: Campaign must be in draft or scheduled state
-- **Effect**: Starts campaign sending process
+## Empty States
+- **No Campaigns**: EmptyState with "Create your first campaign" action
+- **No Segments**: Shows "All customers" option only
+- **Loading**: Spinner with "Loading campaigns..." text
 
-### Schedule Campaign
-- **Action**: User sets future send time
-- **Validation**: Date must be in the future
-- **Effect**: Campaign scheduled for specified time
+## Loading States
+- **Campaigns Loading**: Spinner with loading text
+- **Segments Loading**: Disabled segment dropdown
+- **Creation Loading**: Primary button shows loading state
 
-## Data Flow
-1. Component mounts → Shop context available
-2. Campaigns fetched with pagination
-3. User creates campaign via multi-step wizard
-4. Campaign estimated for recipients and cost
-5. Test send validates template and delivery
-6. Campaign sent or scheduled
-7. Real-time progress updates during sending
+## Error States
+- **Campaign Load Error**: Critical banner with error message
+- **Creation Error**: Toast notification for creation failures
+- **Network Error**: Toast notification for API failures
 
-## Campaign States
-- `draft` - Being created, not ready to send
-- `scheduled` - Ready to send at specified time
-- `sending` - Currently being sent
-- `paused` - Temporarily stopped
-- `completed` - Successfully sent
-- `failed` - Send failed
+## Success States
+- **Campaign Created**: Success toast and navigation to campaign details
+- **Form Reset**: All fields cleared to default values
 
-## Campaign Features
-- **Template Integration**: Use pre-built templates or custom content
-- **Segment Targeting**: Target specific customer segments
-- **Discount Integration**: Assign unique discount codes
-- **Scheduling**: Send immediately or schedule for later
-- **Testing**: Send test messages before launch
-- **Progress Tracking**: Real-time sending progress
-- **Analytics**: Performance metrics and reporting
+## Live SMS Preview Features
+- **iPhone Frame**: Realistic mobile device mockup
+- **Message Bubble**: Blue bubble with white text
+- **Variable Highlighting**: Template variables highlighted in yellow
+- **Character Counting**: Real-time character and segment counting
+- **GSM/Unicode Detection**: Automatic encoding detection
+- **Sender Label**: Customizable sender name
+
+## Accessibility
+- **Keyboard Navigation**: Full keyboard support for all form elements
+- **Screen Reader**: Proper labels and ARIA attributes
+- **Focus Management**: Clear focus indicators and logical tab order
+- **Touch Targets**: 44x44pt minimum for mobile
+
+## Mobile Responsiveness
+- **Grid Layout**: Responsive 2-column layout (stacked on mobile)
+- **Preview**: Sticky preview on desktop, stacked on mobile
+- **Form Fields**: Full-width inputs on mobile
+- **Touch Targets**: Optimized for touch interaction
+
+## Performance Considerations
+- **Live Preview**: Debounced updates to prevent excessive re-renders
+- **Form State**: Optimized state management for large forms
+- **Image Loading**: Lazy loading for campaign images
+- **Data Caching**: 5-minute cache for segments and campaigns

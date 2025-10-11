@@ -1,69 +1,35 @@
-import React, { ReactNode } from 'react';
+import { AppProvider } from '@shopify/polaris';
+import en from '@shopify/polaris/locales/en.json';
+import { ReactNode } from 'react';
 
-// @cursor:start(theme-provider)
-interface PolarisThemeProviderProps {
-  children: ReactNode;
-}
+// @cursor:start(polaris-theme)
+const theme = {
+  colorSchemes: {
+    light: {
+      colors: {
+        // Brand teal gradient colors - accessible and professional
+        primary: { 
+          '50':'#ecfeff','100':'#cffafe','200':'#a5f3fc','300':'#67e8f9',
+          '400':'#22d3ee','500':'#06b6d4','600':'#0891b2','700':'#0e7490',
+          '800':'#155e75','900':'#164e63'
+        },
+        // Soft greys for backgrounds
+        surface: {
+          '50': '#f8fafc',
+          '100': '#f1f5f9', 
+          '200': '#e2e8f0',
+          '300': '#cbd5e1'
+        }
+      }
+    }
+  }
+};
 
-export function PolarisThemeProvider({ children }: PolarisThemeProviderProps) {
+export function PolarisThemeProvider({ children }: { children: ReactNode }) {
   return (
-    <>
+    <AppProvider i18n={en}>
       {children}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        /* Brand gradient utility class */
-        .gradientHero {
-          background: linear-gradient(135deg, #20b2aa 0%, #008b8b 100%);
-          border-radius: 16px;
-          box-shadow: 0 4px 12px rgba(32, 178, 170, 0.15);
-        }
-        
-        /* Ensure proper contrast for text on gradient */
-        .gradientHero h1,
-        .gradientHero h2,
-        .gradientHero h3,
-        .gradientHero .Polaris-Text {
-          color: white !important;
-        }
-        
-        /* Soft grey card styling */
-        .Polaris-Card {
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-        
-        /* KPI card styling */
-        .kpi-card {
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          transition: box-shadow 0.2s ease;
-        }
-        
-        .kpi-card:hover {
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-        }
-        
-        /* Responsive container */
-        .app-container {
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 0 16px;
-        }
-        
-        @media (min-width: 768px) {
-          .app-container {
-            padding: 0 24px;
-          }
-        }
-        
-        @media (min-width: 1024px) {
-          .app-container {
-            padding: 0 32px;
-          }
-        }
-        `
-      }} />
-    </>
+    </AppProvider>
   );
 }
-// @cursor:end(theme-provider)
+// @cursor:end(polaris-theme)

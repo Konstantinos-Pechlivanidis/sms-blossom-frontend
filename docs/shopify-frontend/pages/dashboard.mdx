@@ -1,70 +1,64 @@
-# Dashboard Page
+# Dashboard Page Contract
 
 ## Purpose
-The Dashboard provides a comprehensive overview of SMS marketing performance, system health, and key metrics for the authenticated shop.
+The Dashboard page provides a comprehensive overview of SMS marketing performance, system health, and key metrics for the SMS Blossom application.
 
-## State Chart
-```
-Loading → Data Available → Error State
-    ↓           ↓            ↓
-  Skeleton   KPI Cards    Error Banner
-    ↓           ↓            ↓
-  Health     Top         Retry Button
-  Status     Campaigns
-```
+## Key Components Used
+- **PageHeader**: Standard page header with help system
+- **KpiCard**: Consistent KPI display components
+- **HelpDialog**: Contextual help for page functionality
+- **ActionWithHelp**: Primary action with help tooltip
 
-## Polaris Components Used
-- `Page` - Main page container
-- `Card` - Content sections
-- `InlineStack` - Horizontal layouts
-- `BlockStack` - Vertical layouts
-- `Banner` - Error and warning messages
-- `Select` - Date range picker
-- `Spinner` - Loading indicators
-- `Text` - Typography
-- `Button` - Actions
+## Data Dependencies
+- **Query Keys**: `['overview', shop, period]`, `['health', shop]`
+- **Hooks**: `useOverviewReport`, `useHealth`
+- **Mutations**: None (read-only page)
 
 ## Backend Endpoints
-
 | Method | Path | Purpose |
 |--------|------|---------|
-| GET | `/reports/overview` | Get overview metrics and KPIs |
-| GET | `/health` | System health status |
+| `GET` | `/health` | System health status |
+| `GET` | `/reports/overview` | KPI metrics and performance data |
+| `GET` | `/reports/messaging` | Messaging statistics |
 
-## Shopify Admin API Reference Operations
-- None (Dashboard uses backend API only)
+## User Actions
+| Action | This button does... | Backend Operation |
+|--------|-------------------|-------------------|
+| **Create Campaign** | Opens campaign creation wizard | N/A (frontend navigation) |
+| **Retry** | Refreshes dashboard data | Refetches `useOverviewReport` |
+| **Date Range Change** | Filters data by time period | Refetches queries with new period |
+| **Help** | Opens contextual help dialog | N/A (frontend modal) |
 
-## User Actions & Validation Rules
+## Empty States
+- **No Data**: Shows "No data available for the selected period" message
+- **Loading**: Shows skeleton components for KPIs and charts
+- **Error**: Shows critical banner with retry button
 
-### Date Range Selection
-- **Action**: User selects date range (7d, 30d, 90d, 1y)
-- **Validation**: Valid date range values only
-- **Effect**: Refreshes overview data
+## Loading States
+- **KPI Loading**: `KpiSkeletonRow` component
+- **Chart Loading**: `ChartSkeleton` component
+- **Health Loading**: Spinner with "Loading system health..." text
 
-### Retry on Error
-- **Action**: User clicks retry button
-- **Validation**: Only available when error state
-- **Effect**: Refetches all dashboard data
+## Error States
+- **Overview Error**: Critical banner with retry button
+- **Health Error**: Warning banner for system health issues
+- **Network Error**: Toast notification for API failures
 
-### Health Status Display
-- **Action**: System health monitoring
-- **Validation**: Automatic health checks
-- **Effect**: Shows warning banner if unhealthy
+## Success States
+- **Data Refresh**: Success toast on retry
+- **Date Range Change**: Automatic data refetch
 
-## Data Flow
-1. Component mounts → Shop context available
-2. API client configured with shop domain
-3. Overview report fetched with selected date range
-4. Health status checked
-5. Data rendered in KPI cards and health indicators
-6. Error states handled with retry options
+## Accessibility
+- **Keyboard Navigation**: Full keyboard support for all interactive elements
+- **Screen Reader**: Proper ARIA labels and semantic HTML
+- **Focus Management**: Clear focus indicators and logical tab order
 
-## Key Metrics Displayed
-- Total Messages Sent
-- Messages Delivered
-- Messages Failed
-- Opt Outs
-- Total Revenue
-- Average Delivery Time
-- Top Performing Campaigns
-- System Health Status (Database, Redis, Queues)
+## Mobile Responsiveness
+- **Grid Layout**: Responsive KPI grid (1/2/3 columns based on screen size)
+- **Touch Targets**: 44x44pt minimum touch targets
+- **Navigation**: Collapsible navigation for mobile
+
+## Performance Considerations
+- **Lazy Loading**: Heavy components loaded on demand
+- **Data Caching**: 5-minute cache for overview data
+- **Optimistic Updates**: Immediate UI feedback for user actions

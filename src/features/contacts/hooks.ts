@@ -13,6 +13,13 @@ export interface Contact {
   subscribed: boolean;
   createdAt: string;
   lastActivity?: string;
+  // @cursor-doc:start(new-contact-fields)
+  gender?: 'male' | 'female' | 'unknown';
+  birthdate?: string; // ISO date
+  ageYears?: number; // derived from birthdate
+  conversionCount?: number; // lifetime attributed orders
+  lastConvertedAt?: string; // ISO date - last conversion timestamp
+  // @cursor-doc:end(new-contact-fields)
 }
 
 export interface ContactsResponse {
@@ -113,3 +120,28 @@ export function useBulkContacts() {
     },
   });
 }
+
+// @cursor-doc:start(contact-filters)
+export interface ContactFilters {
+  gender?: 'male' | 'female' | 'unknown' | 'all';
+  minAge?: number;
+  maxAge?: number;
+  conversionStatus?: 'all' | 'converted_lifetime' | 'converted_last_90d' | 'not_converted';
+}
+
+export function useContactsWithFilters(filters: ContactFilters = {}) {
+  const { shop } = useShop();
+
+  return useQuery({
+    queryKey: ['contacts', shop, filters] as const,
+    queryFn: async () => {
+      if (!shop) throw new Error('Shop not available');
+      return enhancedApiClient.getContacts({ shop });
+    },
+    enabled: !!shop,
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+}
+// @cursor-doc:end(contact-filters)

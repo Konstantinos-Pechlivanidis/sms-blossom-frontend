@@ -1,0 +1,48 @@
+# Settings Page Contract
+
+## Purpose
+The Settings page provides configuration options for the SMS marketing app. It includes app branding, automation defaults, system health, and advanced settings.
+
+## Components Used
+- `PageHeader` - Main page header with help integration
+- `SectionCard` - Grouped settings sections
+- `ExplainableButton` - Action buttons with explanations
+- `useSaveBar` - App Bridge Save Bar for dirty form state
+- `SettingsForm` - Main settings form component
+
+## Queries/Mutations Used
+- `useSettings()` - Fetch current settings
+- `useUpdateSettings()` - Update settings
+- `useHealth()` - Fetch system health status
+
+## Save Bar Behavior
+- Shows when any setting is modified
+- Save action persists changes to backend
+- Discard action resets to last saved state
+- Loading state during save operations
+
+## Error States
+- Critical banners for settings load failures
+- Inline errors for invalid field values
+- Loading skeletons during data fetch
+- Success/error toasts for save operations
+
+## Primary Actions
+- Configure app branding and defaults
+- Set automation delays and throttles
+- Toggle theme banner integration
+- View system health status
+- Configure unsubscribe settings
+
+## Backend Endpoints
+- `GET /settings` - Fetch current settings
+- `PUT /settings` - Update settings
+- `GET /health` - Fetch system health
+- `PUT /settings/banner` - Update banner preference
+
+## Settings Sections
+- **App & Branding** - Core app configuration
+- **System Health** - Backend connectivity status
+- **Theme Integration** - Storefront banner settings
+- **Unsubscribe Configuration** - Customer opt-out settings
+- **Advanced Settings** - Developer configuration (dev only)

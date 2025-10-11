@@ -25,5 +25,15 @@ export type Segment = {
     shopId: string;
     createdAt: string;
     updatedAt: string;
+    // @cursor-doc:start(new-segment-fields)
+    /**
+     * Whether this is a system-managed segment
+     */
+    isSystem?: boolean;
+    /**
+     * Unique slug per shop for system segments
+     */
+    slug?: string;
+    // @cursor-doc:end(new-segment-fields)
 };
 

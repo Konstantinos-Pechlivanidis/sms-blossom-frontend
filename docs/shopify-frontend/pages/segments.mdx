@@ -1,0 +1,201 @@
+# Segments Page
+
+## Overview
+
+The Segments page manages customer segmentation with both custom and system-managed segments for targeted marketing campaigns.
+
+## What's New
+
+### System Segments
+
+Server-managed segments that are automatically updated based on customer data:
+
+- **isSystem**: Boolean flag indicating system-managed segments
+- **slug**: Unique identifier per shop (e.g., "male", "female", "age_25_34")
+- **filterJson**: Advanced filter support for gender, age, and conversion criteria
+
+### System Segment Presets
+
+Pre-configured system segments include:
+
+#### Gender Segments
+- **male**: Male customers
+- **female**: Female customers
+
+#### Age Segments
+- **age_18_24**: Customers aged 18-24
+- **age_25_34**: Customers aged 25-34
+- **age_35_44**: Customers aged 35-44
+- **age_45_54**: Customers aged 45-54
+- **age_55_plus**: Customers aged 55+
+
+#### Conversion Segments
+- **converted_last_90d**: Customers who converted in the last 90 days
+- **converted_lifetime**: Customers who have converted at least once
+
+### Enhanced Filter Support
+
+System segments support advanced filtering:
+
+```json
+{
+  "gender": "male",
+  "ageYears": { "gte": 25, "lte": 45 },
+  "conversion": {
+    "minCount": 1,
+    "lastNDays": 90
+  }
+}
+```
+
+## Features
+
+### Segment Management
+
+- **Create Segments**: Build custom segments with JSON filters
+- **Edit Segments**: Modify custom segments (system segments are read-only)
+- **Delete Segments**: Remove custom segments (system segments cannot be deleted)
+- **Preview Segments**: See estimated audience count and sample data
+
+### System Segment Rules
+
+- **Read-Only**: System segments cannot be edited or deleted
+- **Auto-Updated**: Automatically refreshed based on customer data changes
+- **Badge Indicators**: Clearly marked with "System" badges
+- **Description**: Human-readable descriptions for each system segment
+
+### Segment Preview
+
+- **Audience Count**: Estimated number of contacts matching the segment
+- **Sample Data**: Preview of contacts that match the segment criteria
+- **Filter Summary**: Parsed and displayed filter conditions
+- **Real-time Updates**: Preview updates as customer data changes
+
+## UI Components
+
+### Segment List
+
+- **System Badge**: Blue "System" badge for system-managed segments
+- **Status Badge**: Green "Active" badge for all segments
+- **Actions**: Edit/Delete for custom segments, Preview for all segments
+- **Description**: System segment descriptions for clarity
+
+### Segment Creation
+
+- **Name Field**: Segment name input
+- **Filter JSON**: Advanced JSON filter editor
+- **Validation**: JSON syntax validation
+- **Preview**: Real-time preview of segment criteria
+
+### Segment Editing
+
+- **Read-Only Mode**: System segments show as disabled
+- **Warning Banner**: Info banner for system segments
+- **Filter Display**: JSON filter display for system segments
+- **Help Text**: Guidance for system segment behavior
+
+## Backend Endpoints
+
+| Operation | Endpoint | Method | Description |
+|-----------|----------|--------|-------------|
+| List Segments | `/segments` | GET | Retrieve all segments (custom + system) |
+| Create Segment | `/segments` | POST | Create new custom segment |
+| Update Segment | `/segments/{id}` | PUT | Update custom segment |
+| Delete Segment | `/segments/{id}` | DELETE | Delete custom segment |
+| Preview Segment | `/segments/preview` | POST | Preview segment audience |
+| Get Segment | `/segments/{id}` | GET | Get specific segment details |
+
+## Usage Examples
+
+### Creating a Custom Segment
+
+```json
+{
+  "name": "High Value Customers",
+  "filterJson": {
+    "and": [
+      { "conversionCount": { "gte": 2 } },
+      { "gender": "female" }
+    ]
+  }
+}
+```
+
+### System Segment Usage
+
+System segments are automatically available and cannot be modified:
+
+```json
+{
+  "id": "seg_system_male",
+  "name": "Male Customers",
+  "isSystem": true,
+  "slug": "male",
+  "filterJson": { "gender": "male" }
+}
+```
+
+### Preview Segment
+
+```typescript
+const preview = await previewSegment({
+  filterJson: {
+    "ageYears": { "gte": 25, "lte": 45 },
+    "conversionCount": { "gte": 1 }
+  }
+});
+```
+
+## Campaign Integration
+
+### Segment Selection
+
+- **System Segments**: Available in campaign segment selectors
+- **Badge Indicators**: System segments marked with "System" badge
+- **Read-Only**: Cannot be edited when selected for campaigns
+- **Real-time**: Always reflect current customer data
+
+### Filter Compatibility
+
+System segments work seamlessly with campaign targeting:
+
+- **Gender Targeting**: Use male/female system segments
+- **Age Targeting**: Use age range system segments
+- **Conversion Targeting**: Use conversion-based system segments
+- **Combined Targeting**: Mix system and custom segments
+
+## Data Management
+
+### System Segment Updates
+
+- **Automatic**: Updated when customer data changes
+- **Real-time**: Changes reflect immediately in campaigns
+- **Consistent**: Same data source as contact management
+- **Reliable**: Server-managed for accuracy
+
+### Custom Segment Management
+
+- **Manual**: Created and maintained by users
+- **Flexible**: Full control over filter criteria
+- **Editable**: Can be modified or deleted
+- **Preview**: Always preview before using in campaigns
+
+## Troubleshooting
+
+### Common Issues
+
+1. **System Segment Not Updating**: Check customer data sync
+2. **Preview Not Working**: Verify filter JSON syntax
+3. **Segment Not Available**: Ensure segment is active
+4. **Filter Errors**: Check JSON format and field names
+
+### Best Practices
+
+1. **Use System Segments**: Leverage pre-built segments when possible
+2. **Preview First**: Always preview segments before using in campaigns
+3. **Test Filters**: Validate custom segment filters thoroughly
+4. **Monitor Performance**: Large segments may impact campaign performance
+
+## Support
+
+For technical support or segment-related issues, refer to the API documentation or contact the development team.

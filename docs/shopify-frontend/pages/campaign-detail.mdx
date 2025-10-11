@@ -1,0 +1,59 @@
+# Campaign Detail Page Contract
+
+## Purpose
+The Campaign Detail page provides comprehensive campaign management with live SMS preview, audience analysis, and send controls. It features a two-column layout with campaign details on the left and live SMS preview on the right.
+
+## Components Used
+- `PageHeader` - Main page header with help integration
+- `SectionCard` - Grouped campaign sections
+- `ExplainableButton` - Action buttons with explanations
+- `SMSPhonePreview` - Live iPhone-style SMS preview
+- `useSaveBar` - App Bridge Save Bar for dirty form state
+- `Layout` - Two-column layout structure
+
+## Queries/Mutations Used
+- `useCampaign()` - Fetch campaign details
+- `useSegments()` - Fetch available segments
+- `useSaveCampaign()` - Update campaign details
+- `useAttachDiscount()` - Attach discount codes
+- `useUTM()` - Update UTM parameters
+
+## Save Bar Behavior
+- Shows when campaign details are modified
+- Save action updates campaign settings
+- Discard action resets to last saved state
+- Loading state during save operations
+
+## Error States
+- Critical banners for campaign load failures
+- Inline errors for invalid field values
+- Loading skeletons during data fetch
+- Error toasts for action failures
+
+## Primary Actions
+- Edit campaign name, segment, and template
+- Attach/detach discount codes
+- Configure UTM tracking parameters
+- Snapshot audience size
+- Estimate campaign costs
+- Send test messages
+- Launch campaign
+
+## Backend Endpoints
+- `GET /campaigns/{id}` - Fetch campaign details
+- `PUT /campaigns/{id}` - Update campaign
+- `POST /campaigns/{id}/attach-discount` - Attach discount
+- `POST /campaigns/{id}/detach-discount` - Detach discount
+- `PUT /campaigns/{id}/utm` - Update UTM parameters
+- `POST /campaigns/{id}/snapshot` - Audience snapshot
+- `POST /campaigns/{id}/estimate` - Cost estimation
+- `POST /campaigns/{id}/test-send` - Send test SMS
+- `POST /campaigns/{id}/send-now` - Launch campaign
+
+## Campaign Sections
+- **Campaign Details** - Name, segment, template configuration
+- **Discount Configuration** - Discount code attachment and URL preview
+- **UTM Tracking** - Campaign tracking parameters
+- **Audience & Cost Analysis** - Audience snapshot and cost estimation
+- **Test & Send** - Test messaging and campaign launch
+- **SMS Preview** - Live iPhone-style message preview

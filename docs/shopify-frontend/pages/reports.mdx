@@ -1,0 +1,41 @@
+# Reports Page Contract
+
+## Purpose
+The Reports page provides comprehensive analytics and reporting for SMS marketing campaigns. It displays performance metrics, attribution data, and export capabilities.
+
+## Components Used
+- `PageHeader` - Main page header with help integration
+- `SectionCard` - Grouped sections for different report types
+- `MetricCard` - KPI display cards
+- `DataGrid` - Tabular data with search, filters, and export
+- `ExplainableButton` - Export actions with explanations
+
+## Queries/Mutations Used
+- `useReportsOverview()` - Fetch summary metrics
+- `useReportsTimeseries()` - Fetch time-series data
+- `useReportsCampaigns()` - Fetch campaign performance data
+- `useReportsAutomations()` - Fetch automation performance data
+
+## Save Bar Behavior
+- No Save Bar (read-only reports page)
+- Export actions trigger CSV downloads
+
+## Error States
+- Critical banners for data fetch failures
+- Loading skeletons during data fetch
+- Empty states for no data scenarios
+- Error toasts for export failures
+
+## Primary Actions
+- View campaign performance metrics
+- Export CSV data
+- Filter by date ranges
+- View automation attribution
+- Analyze ROI and revenue data
+
+## Backend Endpoints
+- `GET /reports/overview` - Fetch summary metrics
+- `GET /reports/messaging/timeseries` - Fetch time-series data
+- `GET /reports/campaigns` - Fetch campaign data
+- `GET /reports/automations` - Fetch automation data
+- `POST /reports/export` - Generate CSV exports

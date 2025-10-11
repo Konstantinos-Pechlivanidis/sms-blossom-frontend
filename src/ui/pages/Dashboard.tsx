@@ -1,9 +1,20 @@
-import { Card, Page, Text, InlineStack, BlockStack, Banner, Button, Select, Spinner } from '@shopify/polaris';
+import { Card, Text, InlineStack, BlockStack, Banner, Button, Select, Spinner, Box, Layout } from '@shopify/polaris';
 import { useState } from 'react';
 import { useOverviewReport, useHealth } from '../../lib/api/hooks';
 import { useShop } from '../../lib/shopContext';
 import { KpiSkeletonRow, ChartSkeleton } from '../components/Skeletons';
 import { logPageView, logFeatureUsage } from '../../lib/telemetry';
+import { SectionHeader } from '../components/SectionHeader';
+import { GlassCard } from '../components/GlassCard';
+import { LoadingState } from '../components/LoadingState';
+import { EmptyState } from '../components/EmptyState';
+import { useToast } from '../../lib/useToast';
+// @cursor:start(dashboard-imports)
+import { PageHeader } from '../components/PageHeader';
+import { ExplainableButton } from '../components/ExplainableButton';
+import { MetricCard } from '../components/MetricCard';
+import { SectionCard } from '../components/SectionCard';
+// @cursor:end(dashboard-imports)
 
 const DATE_RANGE_OPTIONS = [
   { label: 'Last 7 days', value: '7d' },
@@ -14,6 +25,7 @@ const DATE_RANGE_OPTIONS = [
 export default function Dashboard() {
   const { shop, isReady } = useShop();
   const [dateRange, setDateRange] = useState('30d');
+  const { showSuccess, showError, ToastComponent } = useToast();
   
   // Track page view
   logPageView('dashboard', window.location.href);
@@ -31,11 +43,39 @@ export default function Dashboard() {
     setDateRange(dateRange === '7d' ? '30d' : '7d');
     setTimeout(() => setDateRange(dateRange), 100);
     logFeatureUsage('dashboard', 'retry_clicked');
+    showSuccess('Dashboard data refreshed');
   };
 
+  // @cursor:start(dashboard-help-content)
+  // Help content is now handled by PageHeader with helpSlug
+  // @cursor:end(dashboard-help-content)
+
   return (
-    <Page title="Dashboard">
-      <BlockStack gap="400">
+    <>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Monitor your SMS marketing performance and system health"
+        primaryAction={
+          <ExplainableButton
+            onAction={() => window.location.href = '/campaigns'}
+            label="Create Campaign"
+            explainTitle="Create Campaign"
+            explainMarkdown="Start a new SMS campaign to reach your customers. You can target specific segments, schedule delivery, and track performance."
+          />
+        }
+        helpSlug="dashboard"
+      />
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="400">
+            {/* @cursor:start(dashboard-hero) */}
+            {/* Hero Section - Brand gradient wrapper */}
+            <div className="gradientHero">
+              <Text as="h2" variant="headingLg">Welcome to SMS Blossom</Text>
+              <Text as="p" variant="bodyMd">Manage your SMS marketing campaigns with powerful automation tools</Text>
+            </div>
+            {/* @cursor:end(dashboard-hero) */}
+
         {/* Error Banner */}
         {overviewError && (
           <Banner tone="critical" title="Failed to load dashboard data">
@@ -52,8 +92,8 @@ export default function Dashboard() {
         )}
 
         {/* Date Range Selector */}
-        <Card>
-          <div style={{ padding: '16px' }}>
+        <GlassCard>
+          <div className="p-4">
             <InlineStack gap="400" align="space-between">
               <Text as="h2" variant="headingMd">
                 Analytics Overview
@@ -67,125 +107,147 @@ export default function Dashboard() {
               />
             </InlineStack>
           </div>
-        </Card>
+        </GlassCard>
 
+        {/* @cursor:start(dashboard-kpis) */}
         {/* KPIs Section */}
         {overviewLoading ? (
           <KpiSkeletonRow />
         ) : overviewData ? (
-          <Card>
-            <div style={{ padding: '16px' }}>
-              <BlockStack gap="200">
-                <Text as="h2" variant="headingMd">
-                  Key Performance Indicators
-                </Text>
-                <InlineStack gap="600" wrap>
-                  <Stat label="Messages Sent" value={overviewData.totalMessages} />
-                  <Stat label="Messages Delivered" value={overviewData.deliveredMessages} />
-                  <Stat label="Messages Failed" value={overviewData.failedMessages} />
-                  <Stat label="Opt Outs" value={overviewData.optOuts} />
-                  <Stat label="Total Revenue" value={`$${overviewData.revenue.toFixed(2)}`} />
-                  <Stat label="Avg Delivery Time" value={`${overviewData.averageDeliveryTime}s`} />
-                </InlineStack>
-              </BlockStack>
+          <SectionCard title="Key Performance Indicators">
+            <div className="brand-grid brand-grid-3">
+              <MetricCard 
+                label="Messages Sent" 
+                value={overviewData.totalMessages}
+                description="Total SMS messages sent"
+              />
+              <MetricCard 
+                label="Messages Delivered" 
+                value={overviewData.deliveredMessages}
+                description="Successfully delivered messages"
+              />
+              <MetricCard 
+                label="Messages Failed" 
+                value={overviewData.failedMessages}
+                description="Failed delivery attempts"
+              />
+              <MetricCard 
+                label="Opt Outs" 
+                value={overviewData.optOuts}
+                description="Customer opt-outs"
+              />
+              <MetricCard 
+                label="Total Revenue" 
+                value={`$${overviewData.revenue.toFixed(2)}`}
+                description="Revenue generated from campaigns"
+              />
+              <MetricCard 
+                label="Avg Delivery Time" 
+                value={`${overviewData.averageDeliveryTime}s`}
+                description="Average time to deliver messages"
+              />
             </div>
-          </Card>
+          </SectionCard>
         ) : (
-          <Card>
-            <div style={{ padding: '16px' }}>
-              <Text as="p" tone="subdued">
-                No data available for the selected period.
-              </Text>
-            </div>
-          </Card>
+          <SectionCard>
+            <Text as="p" tone="subdued">
+              No data available for the selected period.
+            </Text>
+          </SectionCard>
         )}
+        {/* @cursor:end(dashboard-kpis) */}
 
         {/* Top Campaigns Section */}
         {overviewData?.topCampaigns && overviewData.topCampaigns.length > 0 && (
-          <Card>
-            <div style={{ padding: '16px' }}>
+          <GlassCard>
+            <div className="p-4">
               <BlockStack gap="200">
                 <Text as="h2" variant="headingMd">
                   Top Campaigns
                 </Text>
-                <div style={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', fontSize: '14px' }}>
+                <div className="font-mono whitespace-pre-wrap text-sm">
                   {overviewData.topCampaigns
-                    .map((campaign: any) => 
+                    .map((campaign: any) =>
                       `${campaign.name}  messages:${campaign.messages}  revenue:$${campaign.revenue.toFixed(2)}`
                     )
                     .join('\n')}
                 </div>
               </BlockStack>
             </div>
-          </Card>
+          </GlassCard>
         )}
 
         {/* System Health Section */}
         {healthLoading ? (
-          <Card>
-            <div style={{ padding: '16px' }}>
+          <GlassCard>
+            <div className="p-4">
               <InlineStack gap="200" align="center">
                 <Spinner size="small" />
                 <Text as="p">Loading system health...</Text>
               </InlineStack>
             </div>
-          </Card>
+          </GlassCard>
         ) : healthData ? (
-          <Card>
-            <div style={{ padding: '16px' }}>
+          <GlassCard>
+            <div className="p-4">
               <BlockStack gap="200">
                 <Text as="h2" variant="headingMd">
                   System Health
                 </Text>
-                <InlineStack gap="400">
-                  <HealthIndicator 
-                    label="Overall" 
-                    status={healthData.ok ? 'healthy' : 'unhealthy'} 
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <HealthIndicator
+                    label="Overall"
+                    status={healthData.ok ? 'healthy' : 'unhealthy'}
                   />
-                  <HealthIndicator 
-                    label="Database" 
-                    status={healthData.db?.ok ? 'healthy' : 'unhealthy'} 
+                  <HealthIndicator
+                    label="Database"
+                    status={healthData.db?.ok ? 'healthy' : 'unhealthy'}
                   />
-                  <HealthIndicator 
-                    label="Redis" 
-                    status={healthData.redis?.ok ? 'healthy' : 'unhealthy'} 
+                  <HealthIndicator
+                    label="Redis"
+                    status={healthData.redis?.ok ? 'healthy' : 'unhealthy'}
                   />
-                  <HealthIndicator 
-                    label="Queues" 
-                    status={healthData.queues?.ok ? 'healthy' : 'unhealthy'} 
+                  <HealthIndicator
+                    label="Queues"
+                    status={healthData.queues?.ok ? 'healthy' : 'unhealthy'}
                   />
-                </InlineStack>
+                </div>
               </BlockStack>
             </div>
-          </Card>
+          </GlassCard>
         ) : null}
-      </BlockStack>
-    </Page>
+          </BlockStack>
+        </Layout.Section>
+      </Layout>
+      {ToastComponent}
+      
+      {/* Help Dialog is now handled by PageHeader */}
+    </>
   );
 }
 
 function Stat({ label, value }: { label: string; value: any }) {
   return (
-    <BlockStack>
-      <Text as="span" tone="subdued">
+    <div className="ios-glass rounded-2xl p-4 hover:shadow-card transition-shadow duration-300">
+      <Text as="span" tone="subdued" variant="bodySm">
         {label}
       </Text>
       <Text as="p" variant="headingLg">
         {value ?? '—'}
       </Text>
-    </BlockStack>
+    </div>
   );
 }
 
 function HealthIndicator({ label, status }: { label: string; status: 'healthy' | 'unhealthy' }) {
   return (
-    <BlockStack>
-      <Text as="span" tone="subdued">
+    <div className="ios-glass rounded-2xl p-4 hover:shadow-card transition-shadow duration-300">
+      <Text as="span" tone="subdued" variant="bodySm">
         {label}
       </Text>
       <Text as="p" variant="headingMd" tone={status === 'healthy' ? 'success' : 'critical'}>
         {status === 'healthy' ? '✓' : '✗'}
       </Text>
-    </BlockStack>
+    </div>
   );
 }
