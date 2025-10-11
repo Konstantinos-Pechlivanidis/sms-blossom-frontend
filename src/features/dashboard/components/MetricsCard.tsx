@@ -1,17 +1,14 @@
 import React from 'react';
-import { Card, Text, InlineStack, BlockStack, Badge } from '@shopify/polaris';
+import { Card, Text, InlineStack, BlockStack, Badge, Box } from '@shopify/polaris';
 
 interface MetricsCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
-  trend?: {
-    value: number;
-    direction: 'up' | 'down' | 'neutral';
-  };
+  trend?: { value: number; direction: 'up' | 'down' | 'neutral' };
   status?: 'positive' | 'negative' | 'neutral';
   loading?: boolean;
-  onClick?: () => void;
+  onClick?: () => void; // makes the card pressable if provided
 }
 
 export default function MetricsCard({
@@ -23,78 +20,67 @@ export default function MetricsCard({
   loading = false,
   onClick,
 }: MetricsCardProps) {
-  const getStatusColor = () => {
-    switch (status) {
-      case 'positive':
-        return 'success';
-      case 'negative':
-        return 'critical';
-      default:
-        return 'info';
-    }
-  };
+  const statusTone = status === 'positive' ? 'success' : status === 'negative' ? 'critical' : 'info';
 
-  const getTrendIcon = () => {
-    if (!trend) return null;
-    switch (trend.direction) {
-      case 'up':
-        return '↗️';
-      case 'down':
-        return '↘️';
-      default:
-        return '→';
-    }
-  };
+  const trendIcon =
+    !trend ? null : trend.direction === 'up' ? '↗️' : trend.direction === 'down' ? '↘️' : '→';
 
-  const getTrendColor = () => {
-    if (!trend) return 'info';
-    switch (trend.direction) {
-      case 'up':
-        return 'success';
-      case 'down':
-        return 'critical';
-      default:
-        return 'info';
-    }
-  };
+  const trendTone =
+    !trend ? 'info' : trend.direction === 'up' ? 'success' : trend.direction === 'down' ? 'critical' : 'info';
+
+  const pressable = Boolean(onClick);
 
   return (
     <Card>
-      <BlockStack gap="200">
-        <Text variant="bodyMd" tone="subdued" as="span">
-          {title}
-        </Text>
-        
-        {loading ? (
-          <Text variant="heading2xl" tone="subdued" as="span">
-            Loading...
-          </Text>
-        ) : (
-          <InlineStack gap="200" align="space-between">
-            <Text variant="heading2xl" fontWeight="bold" as="h2">
-              {String(value)}
+      <Box padding="300" borderRadius="300">
+        {/* Put interactivity on a div, not on Box */}
+        <div
+          role={pressable ? 'button' : undefined}
+          tabIndex={pressable ? 0 : undefined}
+          onClick={onClick}
+          onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+            if (!pressable) return;
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onClick?.();
+            }
+          }}
+          style={pressable ? { cursor: 'pointer', outline: 'none' } : undefined}
+        >
+          <BlockStack gap="200">
+            <Text variant="bodySm" tone="subdued" as="span">
+              {title}
             </Text>
-            
-            {trend && (
-              <Badge tone={getTrendColor()}>
-                {`${getTrendIcon()} ${Math.abs(trend.value)}%`}
+
+            {loading ? (
+              <Text variant="heading2xl" tone="subdued" as="span">
+                Loading…
+              </Text>
+            ) : (
+              <InlineStack align="space-between" blockAlign="center">
+                <Text variant="heading2xl" fontWeight="bold" as="h2">
+                  {String(value)}
+                </Text>
+                {trend && (
+                  <Badge tone={trendTone as any}>{`${trendIcon} ${Math.abs(trend.value)}%`}</Badge>
+                )}
+              </InlineStack>
+            )}
+
+            {subtitle && (
+              <Text variant="bodySm" as="p">
+                {subtitle}
+              </Text>
+            )}
+
+            {status !== 'neutral' && (
+              <Badge tone={statusTone as any}>
+                {status === 'positive' ? 'Good' : status === 'negative' ? 'Needs attention' : 'Neutral'}
               </Badge>
             )}
-          </InlineStack>
-        )}
-        
-        {subtitle && (
-          <Text variant="bodySm" as="p">
-            {subtitle}
-          </Text>
-        )}
-        
-        {status !== 'neutral' && (
-          <Badge tone={getStatusColor()}>
-            {status === 'positive' ? 'Good' : status === 'negative' ? 'Needs Attention' : 'Neutral'}
-          </Badge>
-        )}
-      </BlockStack>
+          </BlockStack>
+        </div>
+      </Box>
     </Card>
   );
 }

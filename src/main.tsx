@@ -1,16 +1,18 @@
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
-import { AppProvider as PolarisProvider, Spinner, Page } from '@shopify/polaris';
+import { Spinner, Page } from '@shopify/polaris';
 import '@shopify/polaris/build/esm/styles.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from './lib/query';
+import { validateEnvironment, getEnvironmentInfo } from './config/env';
+import { AppProviders } from './app/providers/AppProviders';
+import './styles/globals.css';
 import App from './ui/App';
 import Dashboard from './ui/pages/Dashboard';
 import Contacts from './ui/pages/Contacts';
 import Discounts from './ui/pages/Discounts';
 import Segments from './ui/pages/Segments';
 import Settings from './ui/pages/Settings';
+import Templates from './ui/pages/Templates';
 import NotFoundPage from './features/core/NotFoundPage';
 
 // Lazy load heavy routes for better performance
@@ -27,16 +29,21 @@ const RouteLoader = () => (
     </div>
   </Page>
 );
-import { validateEnvironment, getEnvironmentInfo } from './config/env';
 
 // Validate environment configuration
-const envValidation = validateEnvironment();
-if (!envValidation.valid) {
-  console.error('Environment validation failed:', envValidation.errors);
-  // In development, show detailed error info
-  if (import.meta.env.DEV) {
-    console.error('Environment info:', getEnvironmentInfo());
+try {
+  const envValidation = validateEnvironment();
+  if (!envValidation.valid) {
+    console.warn('Environment validation failed:', envValidation.errors);
+    // In development, show detailed error info
+    if (import.meta.env.DEV) {
+      console.warn('Environment info:', getEnvironmentInfo());
+    }
+  } else {
+    console.log('Environment validation passed');
   }
+} catch (error) {
+  console.warn('Environment validation error:', error);
 }
 
 const router = createBrowserRouter([
@@ -48,6 +55,7 @@ const router = createBrowserRouter([
       { path: '/contacts', element: <Contacts /> },
       { path: '/discounts', element: <Discounts /> },
       { path: '/segments', element: <Segments /> },
+      { path: '/templates', element: <Templates /> },
       { 
         path: '/campaigns', 
         element: (
@@ -90,10 +98,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <PolarisProvider i18n={{}}>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
-    </PolarisProvider>
+    <AppProviders>
+      <RouterProvider router={router} />
+    </AppProviders>
   </React.StrictMode>
 );

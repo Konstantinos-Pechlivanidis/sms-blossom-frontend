@@ -1,0 +1,133 @@
+# Contacts Page
+
+## Overview
+
+The Contacts page manages your SMS subscriber list and contact details with enhanced demographic and conversion tracking capabilities.
+
+## What's New
+
+### Enhanced Contact Fields
+
+The Contacts page now includes new fields synced from Shopify and order data:
+
+- **Gender**: `male` | `female` | `unknown` - Customer gender information
+- **Birthdate**: ISO date format - Customer birth date (optional)
+- **Age Years**: Number - Derived age from birthdate
+- **Conversion Count**: Number - Lifetime attributed orders
+- **Last Converted At**: ISO date - Last conversion timestamp
+
+### Advanced Filtering
+
+Filter contacts by:
+
+- **Gender**: All, Male, Female, Unknown
+- **Age Range**: Min/Max age inputs
+- **Conversion Status**: 
+  - All
+  - Converted (Lifetime)
+  - Converted (Last 90 days)
+  - Not Converted
+
+### Data Sources
+
+- **Gender & Birthdate**: Synced from Shopify customer data
+- **Conversion Data**: Derived from order attribution and conversion tracking
+- **Age Calculation**: Automatically computed from birthdate
+
+## Features
+
+### Contact Management
+
+- **Add Contact**: Create new contacts manually
+- **Edit Contact**: Update contact information
+- **Bulk Actions**: Perform bulk operations on selected contacts
+- **Import CSV**: Import contacts from CSV files
+- **Sync Customers**: Sync customer data from Shopify
+
+### Contact Display
+
+The contact table displays:
+
+- Phone (E164 format)
+- Email
+- Name
+- **Gender** (NEW)
+- **Age** (NEW)
+- **Conversions** (NEW)
+- **Last Converted** (NEW)
+- Consent Status
+- Locale
+- Last Order
+- Tags
+- Created Date
+- Actions
+
+### Filtering & Search
+
+- **Gender Filter**: Filter by customer gender
+- **Age Range**: Set minimum and maximum age
+- **Conversion Status**: Filter by conversion history
+- **Real-time Filtering**: Filters apply immediately
+
+## Backend Endpoints
+
+| Operation | Endpoint | Method | Description |
+|-----------|----------|--------|-------------|
+| List Contacts | `/contacts` | GET | Retrieve paginated contact list |
+| Get Contact | `/contacts/{id}` | GET | Get specific contact details |
+| Create Contact | `/contacts` | POST | Create new contact |
+| Update Contact | `/contacts/{id}` | PUT | Update contact information |
+| Delete Contact | `/contacts/{id}` | DELETE | Remove contact |
+| Bulk Contacts | `/contacts/bulk` | POST | Perform bulk operations |
+| Import CSV | `/contacts/import` | POST | Import contacts from CSV |
+| Export CSV | `/contacts/export` | GET | Export contacts to CSV |
+| Sync Customers | `/admin/sync/customers` | POST | Sync from Shopify |
+
+## Usage Examples
+
+### Filtering by Gender and Age
+
+```typescript
+const filters = {
+  gender: 'female',
+  minAge: 25,
+  maxAge: 45
+};
+```
+
+### Filtering by Conversion Status
+
+```typescript
+const filters = {
+  conversionStatus: 'converted_last_90d'
+};
+```
+
+### Bulk Operations
+
+```typescript
+const bulkAction = {
+  action: 'subscribe',
+  contactIds: ['contact1', 'contact2']
+};
+```
+
+## Data Privacy
+
+- All personal data is handled according to GDPR requirements
+- Customer consent is tracked and displayed
+- Data retention policies apply to contact information
+- Export functionality includes data portability options
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Missing Gender Data**: Ensure Shopify customer profiles are complete
+2. **Age Not Showing**: Verify birthdate is provided in customer data
+3. **Conversion Data Missing**: Check order attribution settings
+4. **Sync Failures**: Verify Shopify API permissions and connectivity
+
+### Support
+
+For technical support or data issues, contact the development team or check the API documentation for endpoint-specific troubleshooting.

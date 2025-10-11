@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   VITE_BACKEND_URL: z.string().url().default('https://api.sms-blossom.com'),
-  VITE_SHOPIFY_API_KEY: z.string().min(1),
+  VITE_SHOPIFY_API_KEY: z.string().min(1).default('dev-api-key'),
   VITE_PORT: z.string().transform(Number).default(5173),
   VITE_HOST: z.string().default('0.0.0.0'),
   VITE_ENABLE_PERFORMANCE: z.string().transform(val => val === 'true').default(false),

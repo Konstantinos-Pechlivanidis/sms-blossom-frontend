@@ -13,10 +13,12 @@ import {
   CalloutCard,
   Tabs,
   Spinner,
-  EmptyState,
+  Box,
+  Layout,
 } from '@shopify/polaris';
 import { useMemo, useState } from 'react';
 import { apiFetch } from '../../lib/api';
+import { authorizedFetch } from '../../lib/auth/authorizedFetch';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +28,15 @@ import { appendUtm, inferShopDomainFromHostParam } from '../../lib/shop';
 import { DiscountTable } from '../../features/discounts/components/DiscountTable';
 import { ConflictBanner } from '../../features/discounts/components/ConflictBanner';
 import { useDiscountConflicts } from '../../features/discounts/hooks';
+import { useToast } from '../../lib/useToast';
+import { useSaveBar } from '../../lib/hooks/useSaveBar';
+import { LoadingState } from '../components/LoadingState';
+import { EmptyState } from '../components/EmptyState';
+// @cursor:start(discounts-imports)
+import { PageHeader } from '../components/PageHeader';
+import { ExplainableButton } from '../components/ExplainableButton';
+import { SectionCard } from '../components/SectionCard';
+// @cursor:end(discounts-imports)
 
 const schema = z
   .object({
@@ -67,6 +78,21 @@ export default function Discounts() {
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState(0);
   const [editingDiscount, setEditingDiscount] = useState<any>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const { showSuccess, showError, ToastComponent } = useToast();
+
+  // Save Bar integration
+  const { SaveBarComponent } = useSaveBar({
+    isDirty,
+    onSave: () => {
+      // Handle save logic
+      setIsDirty(false);
+    },
+    onDiscard: () => {
+      setIsDirty(false);
+    },
+    loading: false,
+  });
 
   const {
     register,
@@ -90,39 +116,49 @@ export default function Discounts() {
   const kind = watch('kind');
 
   async function onSubmit(values: FormValues) {
-    setResponse(null);
-    setPreviewUrl('');
-    const payload: any = {
-      code: values.code,
-      title: values.title || values.code,
-      kind: values.kind,
-      value: values.value,
-      appliesOncePerCustomer: values.appliesOncePerCustomer,
-      usageLimit: values.usageLimit ?? undefined,
-    };
-    if (values.kind === 'amount') payload.currencyCode = values.currencyCode || 'EUR';
-    if (values.startsAt) payload.startsAt = toIso(values.startsAt);
-    if (values.endsAt) payload.endsAt = toIso(values.endsAt);
+    try {
+      setResponse(null);
+      setPreviewUrl('');
+      const payload: any = {
+        code: values.code,
+        title: values.title || values.code,
+        kind: values.kind,
+        value: values.value,
+        appliesOncePerCustomer: values.appliesOncePerCustomer,
+        usageLimit: values.usageLimit ?? undefined,
+      };
+      if (values.kind === 'amount') payload.currencyCode = values.currencyCode || 'EUR';
+      if (values.startsAt) payload.startsAt = toIso(values.startsAt);
+      if (values.endsAt) payload.endsAt = toIso(values.endsAt);
 
-    const created = await apiFetch(`/discounts?shop=${encodeURIComponent(shop)}`, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    setResponse(created);
+      const created = await authorizedFetch(`/discounts?shop=${encodeURIComponent(shop)}`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      setResponse(created);
+      showSuccess('Discount created successfully');
 
-    // Build apply URL using backend helper, then add UTM client-side
-    const urlRes = await apiFetch<{ url: string }>(
-      `/discounts/apply-url?shop=${encodeURIComponent(shop)}&code=${encodeURIComponent(values.code)}&redirect=${encodeURIComponent(values.redirect || '/checkout')}`
-    ).catch(() => ({ url: '' }) as any);
-    const withUtm = appendUtm(urlRes.url, utm);
-    setPreviewUrl(withUtm);
+      // Build apply URL using backend helper, then add UTM client-side
+      const urlRes = await apiFetch<{ url: string }>(
+        `/discounts/apply-url?shop=${encodeURIComponent(shop)}&code=${encodeURIComponent(values.code)}&redirect=${encodeURIComponent(values.redirect || '/checkout')}`
+      ).catch(() => ({ url: '' }) as any);
+      const withUtm = appendUtm(urlRes.url, utm);
+      setPreviewUrl(withUtm);
+    } catch (error) {
+      showError('Failed to create discount');
+    }
   }
 
   async function runConflictScan() {
-    const res = await apiFetch<{ automaticDiscounts: any[] }>(
-      `/discounts/conflicts?shop=${encodeURIComponent(shop)}`
-    );
-    setConflicts(res.automaticDiscounts || []);
+    try {
+      const res = await apiFetch<{ automaticDiscounts: any[] }>(
+        `/discounts/conflicts?shop=${encodeURIComponent(shop)}`
+      );
+      setConflicts(res.automaticDiscounts || []);
+      showSuccess('Conflict scan completed');
+    } catch (error) {
+      showError('Failed to scan for conflicts');
+    }
   }
 
   // Get conflicts for current form data
@@ -322,7 +358,7 @@ export default function Discounts() {
             <ConflictBanner
               conflicts={realTimeConflicts as any}
               onResolve={(conflict) => {
-                console.log('Resolving conflict:', conflict);
+                // Resolving discount conflict
               }}
               onDismiss={() => {
                 // Dismiss conflicts
@@ -364,10 +400,10 @@ export default function Discounts() {
           <DiscountTable
             onEdit={setEditingDiscount}
             onDelete={(id) => {
-              console.log('Delete discount:', id);
+              // Delete discount
             }}
             onCopyUrl={(id) => {
-              console.log('Copy URL for discount:', id);
+              // Copy discount URL
             }}
           />
         </BlockStack>
@@ -376,17 +412,45 @@ export default function Discounts() {
   ];
 
   return (
-    <Page title="Discounts">
-      <BlockStack gap="400">
-        <Tabs
-          tabs={tabs}
-          selected={activeTab}
-          onSelect={setActiveTab}
-        >
-          {tabs[activeTab].panel}
-        </Tabs>
-      </BlockStack>
-    </Page>
+    <>
+      {SaveBarComponent}
+      <PageHeader
+        title="Discounts"
+        subtitle="Create and manage discount codes for your SMS marketing campaigns"
+        primaryAction={
+          <ExplainableButton
+            onAction={() => setActiveTab(0)}
+            label="Create Discount"
+            explainTitle="Create Discount"
+            explainMarkdown="Create a new discount code for your SMS campaigns. You can generate unique codes for each recipient or use shared codes."
+          />
+        }
+        helpSlug="discounts"
+      />
+      <Layout>
+        <Layout.Section>
+          <BlockStack gap="400">
+            {/* @cursor:start(discounts-hero) */}
+            {/* Hero Section - Brand gradient wrapper */}
+            <div className="gradientHero">
+              <Text as="h2" variant="headingLg">Discount Management</Text>
+              <Text as="p" variant="bodyMd">Create and manage discount codes for your campaigns</Text>
+            </div>
+            {/* @cursor:end(discounts-hero) */}
+            <SectionCard>
+              <Tabs
+                tabs={tabs}
+                selected={activeTab}
+                onSelect={setActiveTab}
+              >
+                {tabs[activeTab].panel}
+              </Tabs>
+            </SectionCard>
+          </BlockStack>
+        </Layout.Section>
+      </Layout>
+      {ToastComponent}
+    </>
   );
 }
 

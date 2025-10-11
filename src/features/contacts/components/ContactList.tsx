@@ -22,9 +22,10 @@ import { ConsentBadge, getConsentStatus, getConsentSource, getConsentDate } from
 interface ContactListProps {
   onEditContact?: (contact: Contact) => void;
   onCreateContact?: () => void;
+  filters?: any; // ContactFilters type
 }
 
-export function ContactList({ onEditContact, onCreateContact }: ContactListProps) {
+export function ContactList({ onEditContact, onCreateContact, filters }: ContactListProps) {
   const { data: contactsData, isLoading, error } = useContacts();
   const deleteContact = useDeleteContact();
   const bulkContacts = useBulkContacts();
@@ -126,6 +127,40 @@ export function ContactList({ onEditContact, onCreateContact }: ContactListProps
     return contact.tags.join(', ');
   };
 
+  // @cursor-doc:start(new-contact-formatters)
+  const formatGender = (contact: any) => {
+    if (!contact.gender) return '-';
+    const genderMap = {
+      male: 'Male',
+      female: 'Female',
+      unknown: 'Unknown'
+    };
+    return genderMap[contact.gender as keyof typeof genderMap] || contact.gender;
+  };
+
+  const formatAge = (contact: any) => {
+    return contact.ageYears ? `${contact.ageYears} years` : '-';
+  };
+
+  const formatConversions = (contact: any) => {
+    return contact.conversionCount || 0;
+  };
+
+  const formatLastConverted = (contact: any) => {
+    if (!contact.lastConvertedAt) return '-';
+    const date = new Date(contact.lastConvertedAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+    if (diffDays < 365) return `${Math.ceil(diffDays / 30)} months ago`;
+    return `${Math.ceil(diffDays / 365)} years ago`;
+  };
+  // @cursor-doc:end(new-contact-formatters)
+
   const rows = contacts.map((contact: any) => [
     <Checkbox
       label=""
@@ -135,6 +170,12 @@ export function ContactList({ onEditContact, onCreateContact }: ContactListProps
     formatPhoneE164(contact.phone),
     contact.email || '-',
     `${contact.firstName || ''} ${contact.lastName || ''}`.trim() || '-',
+    // @cursor-doc:start(new-contact-columns)
+    formatGender(contact),
+    formatAge(contact),
+    formatConversions(contact),
+    formatLastConverted(contact),
+    // @cursor-doc:end(new-contact-columns)
     <ConsentBadge
       consentState={getConsentStatus(contact)}
       consentSource={getConsentSource(contact)}
@@ -192,7 +233,7 @@ export function ContactList({ onEditContact, onCreateContact }: ContactListProps
           </InlineStack>
 
           <DataTable
-            columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text']}
+            columnContentTypes={['text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text']}
             headings={[
               <Checkbox
                 label=""
@@ -202,6 +243,12 @@ export function ContactList({ onEditContact, onCreateContact }: ContactListProps
               'Phone (E164)',
               'Email',
               'Name',
+              // @cursor-doc:start(new-contact-headers)
+              'Gender',
+              'Age',
+              'Conversions',
+              'Last Converted',
+              // @cursor-doc:end(new-contact-headers)
               'Consent Status',
               'Locale',
               'Last Order',
