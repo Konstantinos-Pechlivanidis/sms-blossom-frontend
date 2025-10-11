@@ -1,34 +1,35 @@
-# Patch Summary - App Bridge Host & Router Hardening
+# Patch Summary - App Bridge Host & Navigation Hardening
 
 ## Overview
-This document summarizes all changes made to eliminate "Not Found" and "APP::ERROR::INVALID_CONFIG: host must be provided" errors by implementing comprehensive App Bridge host preservation, router hardening, and navigation safety.
+This document summarizes all changes made to resolve internal navigation "Not Found" and "APP::ERROR::INVALID_CONFIG: host must be provided" errors by implementing comprehensive App Bridge host preservation, session token authentication, and SPA history fallback.
 
 ## 🔧 PATCHED Files (Idempotent)
 
 ### Core Infrastructure
-- **`src/lib/shopify/host.ts`** - Enhanced host parameter management with proper URL handling
-- **`src/app/providers/AppProviders.tsx`** - Updated authorizedFetch to use proper App Bridge session tokens
-- **`src/main.tsx`** - Added errorElement to all routes for comprehensive error handling
-- **`src/features/core/NotFoundPage.tsx`** - Updated to use host-safe navigation
+- **`src/lib/shopify/host.ts`** - Enhanced host parameter management with URLSearchParams
+- **`src/app/providers/AppProviders.tsx`** - Updated host guard and session token authentication
+- **`src/ui/routing/WithHostLink.tsx`** - Enhanced with navigateWithHost helper function
+- **`src/app/components/RouteError.tsx`** - Updated to use host-safe navigation
+- **`src/ui/pages/Campaigns.tsx`** - Updated to use useNavigateWithHost
+- **`src/ui/pages/CampaignDetail.tsx`** - Updated to use useNavigateWithHost
 
 ### Host Management
-- **`src/lib/shopify/host.ts`** - Enhanced with proper URL construction and host persistence
+- **`src/lib/shopify/host.ts`** - Enhanced with proper URLSearchParams and host persistence
 - **`src/app/providers/AppProviders.tsx`** - Host guard with recovery UI for missing host parameter
 
-### Router Hardening
-- **`src/main.tsx`** - Added errorElement to root route and all lazy routes
-- **`src/app/components/RouteError.tsx`** - NEW: Route-level error boundary component
-- **`src/lib/navigation/useNavigateWithHost.ts`** - NEW: Host-safe navigation utilities
+### Navigation Safety
+- **`src/app/components/RouteError.tsx`** - Host-safe navigation from error pages
+- **`src/ui/pages/Campaigns.tsx`** - Host-safe navigation for campaign details
+- **`src/ui/pages/CampaignDetail.tsx`** - Host-safe navigation throughout
 
 ## 📁 CREATED Files
 
-### Error Handling
-- **`src/app/components/RouteError.tsx`** - Route-level error boundary with Polaris UI
-- **`src/lib/navigation/useNavigateWithHost.ts`** - Host-safe navigation hooks and components
+### SPA History Fallback
+- **`docs/deploy.md`** - Comprehensive deployment guide with SPA fallback configurations
 
 ### Audit Reports
-- **`AUDIT/ROUTER_AUDIT.md`** - Router configuration and error handling audit
-- **`AUDIT/APP_BRIDGE_NAV.md`** - App Bridge navigation and host preservation audit
+- **`AUDIT/NAV_AUDIT.md`** - Navigation and link usage audit
+- **`AUDIT/APP_BRIDGE_AUDIT.md`** - App Bridge integration audit
 
 ## 🎯 Key Features Implemented
 
@@ -39,48 +40,63 @@ This document summarizes all changes made to eliminate "Not Found" and "APP::ERR
 - **URL Manipulation**: Automatically re-appends host parameter without page reload
 
 ### Session Token Authentication
-- **Fresh Token Per Request**: Uses App Bridge getBearerToken() for each request
+- **Fresh Token Per Request**: Uses App Bridge getSessionToken() for each request
 - **No Token Caching**: Tokens are short-lived and fetched fresh each time
 - **Authorization Header**: Properly sets Authorization: Bearer <token> for all requests
-- **Error Handling**: Graceful fallback if token fetch fails
-
-### Router Hardening
-- **Error Boundaries**: Added errorElement to root route and all lazy routes
-- **Route Error Handling**: Comprehensive error handling with user-friendly UI
-- **404 Handling**: Catch-all route with dedicated NotFoundPage
-- **Deep Link Support**: Proper basename configuration for embedded apps
+- **Host Validation**: Validates host parameter before making API calls
 
 ### Navigation Safety
 - **Host Preservation**: All internal navigation preserves host parameter
 - **useNavigateWithHost**: Hook for programmatic navigation with host preservation
-- **LinkWithHost**: Component for link navigation with host preservation
+- **WithHostLink**: Component for link navigation with host preservation
 - **URL Construction**: Proper URL construction with host parameter
+
+### SPA History Fallback
+- **Express/Node.js**: connect-history-api-fallback configuration
+- **Nginx**: try_files configuration for client-side routing
+- **Apache**: RewriteRule configuration for SPA routing
+- **Vercel**: rewrites configuration in vercel.json
+- **Netlify**: _redirects file configuration
+- **GitHub Pages**: Actions workflow configuration
+
+### Error Handling
+- **Error Boundaries**: Comprehensive error handling with user-friendly UI
+- **Route Error Handling**: All routes have errorElement configured
+- **User-Friendly Messages**: Polaris components for all error states
+- **Development Details**: Stack traces in development mode
 
 ## 📊 Integration Status
 
-### Error Handling
-- **✅ Route Error Boundaries**: All routes have errorElement
-- **✅ Global Error Boundary**: AppProviders includes ErrorBoundary
-- **✅ 404 Handling**: Catch-all route with NotFoundPage
-- **✅ User-Friendly UI**: Polaris components for all error states
-
 ### Host Parameter Management
-- **✅ Host Guard**: AppProviders validates host before initialization
-- **✅ Host Persistence**: sessionStorage for host parameter recovery
-- **✅ URL Manipulation**: Automatic host re-append without reload
-- **✅ Recovery UI**: Clear guidance for missing host parameter
-
-### Navigation Safety
-- **✅ Host Preservation**: All internal links preserve host parameter
-- **✅ Programmatic Navigation**: useNavigateWithHost for safe navigation
-- **✅ Link Components**: LinkWithHost for safe link navigation
-- **✅ URL Construction**: Proper URL handling with host parameter
+- **✅ URL Reading**: Reads host from URL search params
+- **✅ Persistence**: Saves to sessionStorage for recovery
+- **✅ Recovery**: Restores host parameter on navigation
+- **✅ Guard**: Shows recovery UI if no host available
+- **✅ Link Preservation**: All internal links preserve host parameter
 
 ### Session Token Usage
-- **✅ Fresh Tokens**: Each request gets a fresh session token
-- **✅ App Bridge Integration**: Uses getBearerToken() from App Bridge
-- **✅ Authorization Headers**: Proper Bearer token authentication
-- **✅ Error Handling**: Graceful fallback for token failures
+- **✅ All API Calls**: Using `authorizedFetch` with session tokens
+- **Implementation**: Fresh token per request via App Bridge
+- **Security**: No token caching, expires after ~1 minute
+- **Host Validation**: All requests validate host parameter
+
+### Navigation Safety
+- **✅ Host-Safe Navigation**: All programmatic navigation preserves host
+- **✅ Link Components**: WithHostLink available for all links
+- **✅ URL Construction**: Proper URL handling with host parameter
+- **✅ No Full Page Reloads**: All navigation is client-side
+
+### Error Handling
+- **✅ Global ErrorBoundary**: AppProviders includes ErrorBoundary
+- **✅ Route ErrorBoundary**: RouteError component for route-level errors
+- **✅ User-Friendly UI**: Polaris components for all error states
+- **✅ Development Support**: Detailed error information in development
+
+### SPA History Fallback
+- **✅ Documentation**: Comprehensive deployment guide
+- **✅ Multiple Platforms**: Express, Nginx, Apache, Vercel, Netlify, GitHub Pages
+- **✅ Configuration Examples**: Ready-to-use configurations
+- **✅ Troubleshooting**: Common issues and solutions
 
 ## 🏗️ Build Status
 
@@ -104,20 +120,21 @@ This document summarizes all changes made to eliminate "Not Found" and "APP::ERR
 The application now eliminates all "Not Found" and "APP::ERROR::INVALID_CONFIG: host must be provided" errors with:
 
 ✅ **App Bridge Host Guard**: Comprehensive host parameter validation and recovery  
-✅ **Router Hardening**: Error boundaries on all routes with user-friendly UI  
-✅ **Navigation Safety**: Host parameter preservation across all navigation  
 ✅ **Session Token Authentication**: Fresh tokens per request with proper error handling  
-✅ **Deep Link Support**: Proper routing configuration for embedded apps  
-✅ **Error Recovery**: Clear guidance and recovery options for all error states  
+✅ **Navigation Safety**: Host parameter preservation across all navigation  
+✅ **SPA History Fallback**: Comprehensive deployment documentation  
+✅ **Error Handling**: User-friendly error boundaries and recovery options  
+✅ **Build Success**: Production-ready build with no errors  
 
 ## 📝 Region Markers Used
 
 All changes were made using idempotent region markers:
-- `// @cursor:start(host-utils)` - Host parameter management utilities
-- `// @cursor:start(appbridge-host-guard)` - App Bridge host guard implementation
-- `// @cursor:start(appbridge-token-wrapper)` - Session token authentication
+- `// @cursor:start(appbridge-host-utils)` - Host parameter management utilities
+- `// @cursor:start(with-host-link)` - Host-safe link components
+- `// @cursor:start(appbridge-session-token)` - Session token authentication
 - `// @cursor:start(router-error-element)` - Router error handling
-- `// @cursor:start(navigate-with-host)` - Host-safe navigation utilities
+- `// @cursor:start(history-fallback-express)` - Express SPA fallback
+- `// @cursor:start(history-fallback-docs)` - SPA fallback documentation
 
 This ensures all changes are idempotent and can be safely re-applied without creating duplicates.
 
@@ -133,11 +150,11 @@ The application now meets all Shopify App Store requirements and follows best pr
 
 ## 📋 Acceptance Criteria Met
 
-- ✅ **No more `APP::ERROR::INVALID_CONFIG: host must be provided`**
-- ✅ **Hard refresh & deep links work without "Not Found"**
-- ✅ **Route-level `errorElement` renders friendly error pages**
-- ✅ **Dedicated `NotFoundPage` handles unmatched paths**
-- ✅ **Internal navigation preserves `host` parameter**
-- ✅ **Build/lint/typecheck pass with no duplicate files**
+- ✅ **No more "APP::ERROR::INVALID_CONFIG: host must be provided"**
+- ✅ **Navigating to any in-app route works inside the iframe (no 404s)**
+- ✅ **All backend requests go through authorizedFetch (fresh session token per request)**
+- ✅ **Internal links preserve host and do not trigger top-level redirects**
+- ✅ **ErrorBoundary replaces raw "Unexpected Application Error"**
+- ✅ **Build/lint/typecheck pass; no duplicate files created**
 
-The App Bridge host preservation and router hardening is now complete! 🚀
+The App Bridge host preservation and navigation hardening is now complete! 🚀

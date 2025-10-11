@@ -1,12 +1,12 @@
-// @cursor:start(host-utils)
+// @cursor:start(appbridge-host-utils)
 /**
  * App Bridge host parameter management
  * Handles reading, persisting, and recovering the host parameter for embedded apps
  */
 
 export function getHostFromLocation(): string | null {
-  const u = new URL(window.location.href);
-  return u.searchParams.get('host');
+  const s = new URLSearchParams(window.location.search);
+  return s.get('host');
 }
 
 export function persistHost(host: string): void {
@@ -29,23 +29,22 @@ export function loadPersistedHost(): string | null {
 }
 
 export function ensureHostParam(): string | null {
-  const fromUrl = getHostFromLocation();
-  if (fromUrl) { 
-    persistHost(fromUrl); 
-    return fromUrl; 
+  const current = getHostFromLocation();
+  if (current) { 
+    persistHost(current); 
+    return current; 
   }
   const persisted = loadPersistedHost();
   if (persisted) {
-    // Re-append host without reload
-    const u = new URL(window.location.href);
-    u.searchParams.set('host', persisted);
-    window.history.replaceState({}, '', u.toString());
+    const url = new URL(window.location.href);
+    url.searchParams.set('host', persisted);
+    window.history.replaceState({}, '', url.toString());
     return persisted;
   }
-  return null; // signal missing host
+  return null; // let the app show a friendly banner
 }
 
 export function getCurrentHost(): string | null {
   return getHostFromLocation() || loadPersistedHost();
 }
-// @cursor:end(host-utils)
+// @cursor:end(appbridge-host-utils)

@@ -18,7 +18,7 @@ import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../../lib/api';
 import { authorizedFetch } from '../../lib/auth/authorizedFetch';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithHost } from '../../lib/navigation/useNavigateWithHost';
 import { inferShopDomainFromHostParam } from '../../lib/shop';
 import { CampaignWizard } from '../../features/campaigns/components/CampaignWizard';
 import { CostEstimationPanel } from '../../features/campaigns/components/CostEstimationPanel';
@@ -48,7 +48,7 @@ type Campaign = {
 export default function Campaigns() {
   const shop = useMemo(() => inferShopDomainFromHostParam(), []);
   const qc = useQueryClient();
-  const nav = useNavigate();
+  const nav = useNavigateWithHost();
   const { showSuccess, showError, ToastComponent } = useToast();
   const [isDirty, setIsDirty] = useState(false);
 

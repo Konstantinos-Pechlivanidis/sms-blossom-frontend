@@ -2,15 +2,15 @@ import React from 'react';
 import { useRouteError } from 'react-router-dom';
 import { Page, Banner, Button, BlockStack, Text } from '@shopify/polaris';
 import { HomeIcon } from '@shopify/polaris-icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigateWithHost } from '../../lib/navigation/useNavigateWithHost';
 
 // @cursor:start(router-error-element)
 export function RouteError() {
   const error = useRouteError() as any;
-  const navigate = useNavigate();
+  const navigateWithHost = useNavigateWithHost();
 
   const handleGoHome = () => {
-    navigate('/');
+    navigateWithHost('/');
   };
 
   return (

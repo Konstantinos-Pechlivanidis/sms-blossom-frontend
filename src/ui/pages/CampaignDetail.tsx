@@ -12,7 +12,8 @@ import {
   Grid,
 } from '@shopify/polaris';
 import { useMemo, useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useNavigateWithHost } from '../../lib/navigation/useNavigateWithHost';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { inferShopDomainFromHostParam } from '../../lib/shop';
 import CopyButton from '../components/CopyButton';
@@ -28,7 +29,7 @@ export default function CampaignDetail() {
   const { id = '' } = useParams();
   const shop = useMemo(() => inferShopDomainFromHostParam(), []);
   const qc = useQueryClient();
-  const nav = useNavigate();
+  const nav = useNavigateWithHost();
 
   const campaign = useQuery({
     queryKey: ['campaign', id, shop],

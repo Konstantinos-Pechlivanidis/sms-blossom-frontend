@@ -21,21 +21,20 @@ export function AppProviders({ children }: { children: ReactNode }) {
     },
   }), []);
 
-  // Ensure host parameter is present for App Bridge
+  // Call ensureHostParam() before initializing App Bridge / rendering app shell
   const host = ensureHostParam();
   
-  // If no host, show recovery UI
+  // If it returns null, render a Polaris Banner
   if (!host) {
     return (
       <PolarisThemeProvider>
         <Page>
           <Banner
             tone="critical"
-            title="App must be opened from Shopify Admin"
+            title="Open this app from Shopify Admin"
           >
             <p>
-              This app must be accessed through the Shopify Admin interface. 
-              Please go to your Shopify Admin → Apps → SMS Blossom to use this application.
+              Open this app from Shopify Admin so we can receive the host parameter.
             </p>
           </Banner>
         </Page>
@@ -54,16 +53,25 @@ export function AppProviders({ children }: { children: ReactNode }) {
   );
 }
 
-// @cursor:start(appbridge-token-wrapper)
+// @cursor:start(appbridge-session-token)
 export async function authorizedFetch(input: RequestInfo, init: RequestInit = {}) {
-  // Get fresh session token from App Bridge
-  const { getBearerToken } = await import('../../lib/shopify');
-  const token = await getBearerToken();
+  // Build an App Bridge client using apiKey + current host
+  const { getAppBridge } = await import('../../lib/shopify');
+  const { getCurrentHost } = await import('../../lib/shopify/host');
+  
+  const host = getCurrentHost();
+  if (!host) {
+    throw new Error('Host parameter is required for App Bridge session token');
+  }
+  
+  // For EVERY request, fetch a fresh session token via App Bridge getSessionToken
+  const appBridge = getAppBridge();
+  const sessionToken = await appBridge.getSessionToken();
   
   const headers = new Headers(init.headers || {});
-  headers.set('Authorization', `Bearer ${token}`);
+  headers.set('Authorization', `Bearer ${sessionToken}`);
   
   return fetch(input, { ...init, headers });
 }
-// @cursor:end(appbridge-token-wrapper)
+// @cursor:end(appbridge-session-token)
 // @cursor:end(app-providers)
