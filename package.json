@@ -31,7 +31,9 @@
     "ext:verify": "npm run ext:build && npm run ext:size",
     "docs:build": "echo 'Documentation built successfully'",
     "docs:serve": "echo 'Documentation server would start here'",
-    "docs:scan": "find docs/shopify-frontend -name '*.mdx' -o -name '*.md' | head -10"
+    "docs:scan": "find docs/shopify-frontend -name '*.mdx' -o -name '*.md' | head -10",
+    "start": "node server.js",
+    "start:dev": "npm run build && npm run start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

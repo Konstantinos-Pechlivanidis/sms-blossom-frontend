@@ -4,6 +4,18 @@
 
 This is a Single Page Application (SPA) that uses client-side routing. To prevent "Not Found" errors on direct URL access or hard refresh, you need to configure your server to serve `index.html` for all routes.
 
+## Base Path Configuration
+
+### Environment Variables
+- **VITE_BASE_PATH**: Set the base path for your deployment
+  - Root deployment: `VITE_BASE_PATH=/`
+  - Sub-path deployment: `VITE_BASE_PATH=/apps/sms-blossom`
+
+### Build Configuration
+- **Vite base**: Automatically configured from `VITE_BASE_PATH`
+- **Router basename**: Automatically configured from `VITE_BASE_PATH`
+- **Asset URLs**: Automatically adjusted for sub-path deployments
+
 ### Express/Node.js Server
 
 ```javascript

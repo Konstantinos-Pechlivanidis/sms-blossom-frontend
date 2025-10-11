@@ -10,6 +10,7 @@ const HOST = process.env.VITE_HOST || '0.0.0.0';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
+    base: env.VITE_BASE_PATH || '/',
     server: {
       host: HOST,
       port: PORT,

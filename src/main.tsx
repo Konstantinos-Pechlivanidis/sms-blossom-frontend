@@ -100,7 +100,7 @@ const router = createBrowserRouter([
     ],
   },
 ], {
-  basename: import.meta.env.VITE_BASE_PATH || undefined,
+  basename: import.meta.env.VITE_BASE_PATH || '/',
 });
 // @cursor:end(router-error-element)
 
